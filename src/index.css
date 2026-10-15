@@ -809,7 +809,7 @@ select {
   width: min(100%, 400px);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 .mc-badge {
   display: flex;
@@ -845,6 +845,36 @@ select {
 .mc-go {
   animation: rise 0.6s ease-out 5.4s both;
 }
+.mc-share {
+  animation-delay: 5.2s;
+}
+.mc-share .btn {
+  min-height: 48px;
+  font-size: 17px;
+}
+.mc-praise {
+  font-size: clamp(17px, 4.6vw, 22px);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--ink);
+  text-shadow: 0 1px 12px #000, 0 0 3px #000;
+  animation: rise 0.6s ease-out 4.7s both;
+}
+.share-status {
+  margin-top: 6px;
+  min-height: 0;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--amber);
+}
+.share-status:empty {
+  display: none;
+}
+@media (max-height: 700px) {
+  .mc-badge span {
+    display: none;
+  }
+}
 .mc-go .btn {
   width: 100%;
   min-height: 56px;
@@ -863,6 +893,7 @@ select {
   .mc-h .l2,
   .mc-sub,
   .mc-badge,
+  .mc-praise,
   .mc-go {
     animation: none !important;
   }

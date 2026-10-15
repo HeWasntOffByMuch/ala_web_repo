@@ -1,5 +1,6 @@
 import type { ShoppingSection } from './types'
 import { CheckIcon, Emblem, Skyline, SpeakerIcon } from './icons'
+import ShareButton from './ShareButton'
 
 interface Props {
   sections: ShoppingSection[]
@@ -91,6 +92,11 @@ export default function ShoppingScreen({
               <button type="button" className="btn" style={{ width: '100%', marginTop: 12 }} onClick={onReplay}>
                 Odtwórz sekwencję
               </button>
+            )}
+            {complete && (
+              <div style={{ marginTop: 8, display: 'grid', gap: 6 }}>
+                <ShareButton count={done} className="btn btn-primary" />
+              </div>
             )}
           </aside>
 

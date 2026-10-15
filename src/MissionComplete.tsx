@@ -1,10 +1,14 @@
-import { Component, useEffect, useMemo, useRef, type ReactNode } from 'react'
+import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import Hyperspace from './Hyperspace'
 import { Emblem, SpeakerIcon } from './icons'
 import { Planet, ShipArt } from './MissionScene'
 import { playMission } from './sound'
+import { pickPraise } from './praise'
+import ShareButton from './ShareButton'
 
 interface Props {
+  /** Liczba zebranych produktów (do wiadomości dla żony). */
+  count: number
   muted: boolean
   onToggleMute: () => void
   /** Pomiń i zostań na liście. */
@@ -16,7 +20,8 @@ interface Props {
 const prefersReducedMotion = () =>
   typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-function Sequence({ muted, onToggleMute, onClose, onReturn }: Props) {
+function Sequence({ count, muted, onToggleMute, onClose, onReturn }: Props) {
+  const [praise] = useState(pickPraise)
   const reduced = useMemo(prefersReducedMotion, [])
   const root = useRef<HTMLDivElement>(null)
   const skip = useRef<HTMLButtonElement>(null)
@@ -87,12 +92,16 @@ function Sequence({ muted, onToggleMute, onClose, onReturn }: Props) {
           <p className="mc-sub">Galaktyka została zaopatrzona</p>
         </div>
         <div className="mc-bottom">
+          <p className="mc-praise">{praise}</p>
           <div className="mc-badge">
             <Emblem className="emblem" />
             <div>
               <b>MISTRZ ZAOPATRZENIA</b>
               <span>WSZYSTKIE PRODUKTY ZDOBYTE W JEDNEJ MISJI</span>
             </div>
+          </div>
+          <div className="mc-go mc-share">
+            <ShareButton count={count} praise={praise} prepareAfter={4500} />
           </div>
           <div className="mc-go">
             <button ref={back} type="button" className="btn btn-primary" onClick={onReturn}>

@@ -145,6 +145,7 @@ export default function App() {
       )}
       {celebrating && (
         <MissionComplete
+          count={done}
           muted={muted}
           onToggleMute={toggleMuted}
           onClose={() => setCelebrating(false)}

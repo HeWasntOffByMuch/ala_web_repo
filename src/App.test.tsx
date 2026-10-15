@@ -122,3 +122,21 @@ describe('App: zakończenie misji', () => {
     expect(screen.getByRole('heading', { name: 'Posiłki' })).toBeInTheDocument()
   })
 })
+
+describe('App: pochwała i wysyłka do żony', () => {
+  it('pokazuje pochwałę z imieniem i pozwala wysłać wiadomość', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('checkbox', { name: 'Owsianka z sokiem' }))
+    await user.click(screen.getByRole('button', { name: 'Lista zakupów' }))
+    for (const name of ['Mleko', 'Płatki owsiane', 'Sok pomarańczowy', 'Woda mineralna']) {
+      await user.click(screen.getByRole('checkbox', { name }))
+    }
+    const dialog = screen.getByRole('dialog')
+    expect(within(dialog).getByText(/Johnny/)).toBeInTheDocument()
+
+    await user.click(within(dialog).getByRole('button', { name: 'Wyślij żonie screena' }))
+    // jsdom nie ma navigator.share: działa awaryjna ścieżka
+    expect(await within(dialog).findByRole('status')).toHaveTextContent(/Udostępnianie nie działa/)
+  })
+})
