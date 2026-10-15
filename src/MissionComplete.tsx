@@ -25,7 +25,9 @@ const prefersReducedMotion = () =>
 function Sequence({ count, muted, onToggleMute, onClose, onReturn }: Props) {
   const [praise] = useState(pickPraise)
   const [scene] = useState(pickScene)
-  const reduced = useMemo(prefersReducedMotion, [])
+  const systemReduced = useMemo(prefersReducedMotion, [])
+  const [full, setFull] = useState(false)
+  const reduced = systemReduced && !full
   const root = useRef<HTMLDivElement>(null)
   const skip = useRef<HTMLButtonElement>(null)
   const back = useRef<HTMLButtonElement>(null)
@@ -60,7 +62,7 @@ function Sequence({ count, muted, onToggleMute, onClose, onReturn }: Props) {
   }
 
   return (
-    <div ref={root} className="mc" role="dialog" aria-modal="true" aria-label="Misja wykonana" onKeyDown={onKeyDown}>
+    <div ref={root} className={`mc ${full ? 'mc-full' : ''}`} role="dialog" aria-modal="true" aria-label="Misja wykonana" onKeyDown={onKeyDown}>
       <div className="mc-shake">
         <Hyperspace still={reduced} />
         <div className="mc-glow" />
@@ -96,6 +98,11 @@ function Sequence({ count, muted, onToggleMute, onClose, onReturn }: Props) {
         </div>
         <div className="mc-bottom">
           <p className="mc-praise">{praise}</p>
+          {reduced && (
+            <button type="button" className="btn btn-ghost mc-fullbtn" onClick={() => setFull(true)}>
+              Pokaż pełną animację
+            </button>
+          )}
           <div className="mc-badge">
             <Emblem className="emblem" />
             <div>

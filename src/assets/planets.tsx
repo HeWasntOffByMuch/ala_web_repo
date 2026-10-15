@@ -15,11 +15,40 @@ const PCX = 400
 const PCY = 700
 const PRX = 570
 const PRY = 500
-const edgeY = (x: number) => PCY - PRY * Math.sqrt(Math.max(0, 1 - ((x - PCX) / PRX) ** 2))
+
+interface Shape {
+  d: string
+  edge: (x: number) => number
+}
+
+/**
+ * Nierówny obrys planety liczony w JS (suma sinusów), bez filtrów SVG.
+ * Filtry feTurbulence/feDisplacementMap przeciążały iOS, więc ich nie używamy.
+ */
+function makeShape(seed: number, amp: number): Shape {
+  const r = rng(seed * 7 + 3)
+  const waves = Array.from({ length: 6 }, (_, i) => ({
+    k: 3 + i * 3 + Math.floor(r() * 3),
+    a: (amp / (1 + i * 0.7)) * (0.5 + r()),
+    p: r() * Math.PI * 2,
+  }))
+  const bump = (t: number) => 1 + waves.reduce((n, w) => n + w.a * Math.sin(w.k * t + w.p), 0)
+  const at = (t: number) => [PCX + PRX * Math.cos(t) * bump(t), PCY + PRY * Math.sin(t) * bump(t)] as const
+  const N = 220
+  const d =
+    Array.from({ length: N }, (_, i) => {
+      const [x, y] = at((i / N) * Math.PI * 2)
+      return `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`
+    }).join('') + 'Z'
+  return {
+    d,
+    edge: (x) => at(-Math.acos(Math.max(-1, Math.min(1, (x - PCX) / PRX))))[1],
+  }
+}
 
 interface Theme {
   stops: [string, string, string, string]
-  tint: string // macierz koloru ziarna
+  speck: [string, string] // jasne i ciemne ziarno powierzchni
   glow: string
   rim: string
   horizon: string
@@ -28,12 +57,12 @@ interface Theme {
 }
 
 const THEMES: Record<PlanetKind, Theme> = {
-  potato: { stops: ['#f0c27a', '#c98b46', '#7d4d22', '#2a160a'], tint: '.25 .13 .05', glow: '#ff8a3d', rim: '#bfe0ff', horizon: '#0a0806', horizonStroke: '#ff8a3d', seed: 11 },
-  desert: { stops: ['#ffd99a', '#e0a35b', '#a35f2a', '#3a1d0d'], tint: '.45 .25 .1', glow: '#ffb35c', rim: '#ffe2b0', horizon: '#120a05', horizonStroke: '#ffb35c', seed: 21 },
-  ice: { stops: ['#ffffff', '#cfe6f5', '#7fa6c4', '#1c2f45'], tint: '.8 .9 1', glow: '#78beff', rim: '#e8f6ff', horizon: '#07101a', horizonStroke: '#78beff', seed: 31 },
-  forest: { stops: ['#5f9a58', '#2f6b3a', '#173d24', '#06130b'], tint: '.05 .25 .08', glow: '#7fcf92', rim: '#c9f5d4', horizon: '#040b06', horizonStroke: '#7fcf92', seed: 41 },
-  swamp: { stops: ['#8b8a4e', '#566033', '#2c3520', '#0a0e08'], tint: '.2 .25 .08', glow: '#b8c46a', rim: '#d9e0a0', horizon: '#050704', horizonStroke: '#b8c46a', seed: 51 },
-  lava: { stops: ['#5a3a34', '#2b1b19', '#120a09', '#050303'], tint: '.32 .09 .04', glow: '#ff5a1f', rim: '#ff8a56', horizon: '#050303', horizonStroke: '#ff5a1f', seed: 61 },
+  potato: { stops: ['#f0c27a', '#c98b46', '#7d4d22', '#2a160a'], speck: ['#f5d79d', '#4b2c12'], glow: '#ff8a3d', rim: '#bfe0ff', horizon: '#0a0806', horizonStroke: '#ff8a3d', seed: 11 },
+  desert: { stops: ['#ffd99a', '#e0a35b', '#a35f2a', '#3a1d0d'], speck: ['#ffe2b0', '#6b3a14'], glow: '#ffb35c', rim: '#ffe2b0', horizon: '#120a05', horizonStroke: '#ffb35c', seed: 21 },
+  ice: { stops: ['#ffffff', '#cfe6f5', '#7fa6c4', '#1c2f45'], speck: ['#ffffff', '#7fa6c4'], glow: '#78beff', rim: '#e8f6ff', horizon: '#07101a', horizonStroke: '#78beff', seed: 31 },
+  forest: { stops: ['#5f9a58', '#2f6b3a', '#173d24', '#06130b'], speck: ['#7fbf7a', '#0b2415'], glow: '#7fcf92', rim: '#c9f5d4', horizon: '#040b06', horizonStroke: '#7fcf92', seed: 41 },
+  swamp: { stops: ['#8b8a4e', '#566033', '#2c3520', '#0a0e08'], speck: ['#c5cf7a', '#141a0d'], glow: '#b8c46a', rim: '#d9e0a0', horizon: '#050704', horizonStroke: '#b8c46a', seed: 51 },
+  lava: { stops: ['#5a3a34', '#2b1b19', '#120a09', '#050303'], speck: ['#ff7a3d', '#000000'], glow: '#ff5a1f', rim: '#ff8a56', horizon: '#050303', horizonStroke: '#ff5a1f', seed: 61 },
 }
 
 const jag = (r: () => number, x: number, y: number, steps: number, step: number) => {
@@ -99,7 +128,7 @@ function Sky({ kind, u }: { kind: PlanetKind; u: string }) {
 }
 
 /** Cechy powierzchni, przycięte do kształtu planety. */
-function Surface({ kind, r }: { kind: PlanetKind; r: () => number }) {
+function Surface({ kind, r, edgeY }: { kind: PlanetKind; r: () => number; edgeY: (x: number) => number }) {
   const items = useMemo((): ReactNode => {
     switch (kind) {
       case 'potato':
@@ -161,7 +190,8 @@ function Surface({ kind, r }: { kind: PlanetKind; r: () => number }) {
               const d = jag(r, 60 + r() * 680, edgeY(400) + 6 + r() * 40, 8, 28)
               return (
                 <g key={i}>
-                  <path d={d} stroke="#ff5a1f" strokeWidth="5" opacity=".6" filter="url(#lavaGlowFilter)" />
+                  <path d={d} stroke="#ff5a1f" strokeWidth="11" opacity=".18" />
+                  <path d={d} stroke="#ff5a1f" strokeWidth="5" opacity=".5" />
                   <path d={d} stroke="#ffd08a" strokeWidth="1.6" />
                 </g>
               )
@@ -169,12 +199,12 @@ function Surface({ kind, r }: { kind: PlanetKind; r: () => number }) {
           </g>
         )
     }
-  }, [kind, r])
+  }, [kind, r, edgeY])
   return <>{items}</>
 }
 
 /** Sylwetki na horyzoncie: miasta, wille lub drzewa. */
-function Horizon({ kind, t }: { kind: PlanetKind; t: Theme }) {
+function Horizon({ kind, t, edgeY }: { kind: PlanetKind; t: Theme; edgeY: (x: number) => number }) {
   const items = useMemo(() => {
     const r = rng(t.seed + 100)
     const spans: [number, number][] = [
@@ -202,7 +232,7 @@ function Horizon({ kind, t }: { kind: PlanetKind; t: Theme }) {
       }
     }
     return out
-  }, [kind, t])
+  }, [kind, t, edgeY])
   return <>{items}</>
 }
 
@@ -211,6 +241,18 @@ export function Planet({ kind = 'potato', className }: { kind?: PlanetKind; clas
   const u = useId().replace(/:/g, '')
   const t = THEMES[kind]
   const r = useMemo(() => rng(t.seed), [t.seed])
+  const shape = useMemo(() => makeShape(t.seed, kind === 'ice' ? 0.012 : 0.026), [t.seed, kind])
+  // ziarno i plamy zamiast tekstury z filtra
+  const grain = useMemo(() => {
+    const g = rng(t.seed + 5)
+    const blotches = Array.from({ length: 14 }, (_, i) => (
+      <ellipse key={`b${i}`} cx={g() * 800} cy={150 + g() * 320} rx={30 + g() * 110} ry={10 + g() * 40} fill={t.speck[i % 2]} opacity={0.07 + g() * 0.08} />
+    ))
+    const specks = Array.from({ length: 300 }, (_, i) => (
+      <circle key={`s${i}`} cx={g() * 800} cy={140 + g() * 330} r={0.7 + g() * 1.8} fill={t.speck[g() < 0.5 ? 0 : 1]} opacity={0.12 + g() * 0.2} />
+    ))
+    return [...blotches, ...specks]
+  }, [t])
   return (
     <svg className={className} viewBox="0 0 800 460" preserveAspectRatio="xMidYMax slice" aria-hidden>
       <defs>
@@ -250,33 +292,20 @@ export function Planet({ kind = 'potato', className }: { kind?: PlanetKind; clas
           <stop offset=".5" stopColor={t.rim} stopOpacity=".75" />
           <stop offset="1" stopColor={t.rim} stopOpacity="0" />
         </linearGradient>
-        <filter id={`${u}lump`} x="-5%" y="-5%" width="110%" height="110%">
-          <feTurbulence type="fractalNoise" baseFrequency={kind === 'ice' ? 0.008 : 0.011} numOctaves="3" seed={t.seed % 9} result="n" />
-          <feDisplacementMap in="SourceGraphic" in2="n" scale={kind === 'ice' ? 24 : 46} />
-        </filter>
-        <filter id={`${u}grain`} x="0" y="0" width="100%" height="100%">
-          <feTurbulence type="fractalNoise" baseFrequency=".07" numOctaves="4" seed="4" />
-          <feColorMatrix values={`0 0 0 0 ${t.tint.split(' ')[0]}  0 0 0 0 ${t.tint.split(' ')[1]}  0 0 0 0 ${t.tint.split(' ')[2]}  0 0 0 1.2 -.35`} />
-        </filter>
-        <filter id="lavaGlowFilter" x="-10%" y="-10%" width="120%" height="120%">
-          <feGaussianBlur stdDeviation="4" />
-        </filter>
         <clipPath id={`${u}clip`}>
-          <ellipse cx={PCX} cy={PCY} rx={PRX} ry={PRY} />
+          <path d={shape.d} />
         </clipPath>
       </defs>
 
       <Sky kind={kind} u={u} />
       <ellipse cx={PCX} cy={PCY} rx={PRX + 30} ry={PRY + 30} fill={`url(#${u}sun)`} />
-      <g filter={`url(#${u}lump)`}>
-        <ellipse cx={PCX} cy={PCY} rx={PRX} ry={PRY} fill={`url(#${u}body)`} />
-      </g>
+      <path d={shape.d} fill={`url(#${u}body)`} />
       <g clipPath={`url(#${u}clip)`}>
-        <rect width="800" height="460" filter={`url(#${u}grain)`} opacity={kind === 'ice' ? 0.35 : 0.55} />
-        <Surface kind={kind} r={r} />
+        {grain}
+        <Surface kind={kind} r={r} edgeY={shape.edge} />
       </g>
-      <ellipse cx={PCX} cy={PCY} rx={PRX} ry={PRY} fill="none" stroke={`url(#${u}rim)`} strokeWidth="2" />
-      <Horizon kind={kind} t={t} />
+      <path d={shape.d} fill="none" stroke={`url(#${u}rim)`} strokeWidth="2" />
+      <Horizon kind={kind} t={t} edgeY={shape.edge} />
     </svg>
   )
 }

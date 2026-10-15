@@ -885,32 +885,32 @@ select {
   font-size: 19px;
 }
 
-/* ograniczony ruch: od razu scena końcowa, bez efektów */
+/* ograniczony ruch: od razu scena końcowa, bez efektów (chyba że wybrano pełną animację) */
 @media (prefers-reduced-motion: reduce) {
-  .mc,
-  .mc-canvas,
-  .mc-glow,
-  .mc-scene,
-  .mc-ship,
-  .mc-vignette,
-  .mc-h .l1,
-  .mc-h .l2,
-  .mc-sub,
-  .mc-badge,
-  .mc-praise,
-  .mc-go {
+  .mc:not(.mc-full),
+  .mc:not(.mc-full) .mc-canvas,
+  .mc:not(.mc-full) .mc-glow,
+  .mc:not(.mc-full) .mc-scene,
+  .mc:not(.mc-full) .mc-ship,
+  .mc:not(.mc-full) .mc-vignette,
+  .mc:not(.mc-full) .mc-h .l1,
+  .mc:not(.mc-full) .mc-h .l2,
+  .mc:not(.mc-full) .mc-sub,
+  .mc:not(.mc-full) .mc-badge,
+  .mc:not(.mc-full) .mc-praise,
+  .mc:not(.mc-full) .mc-go {
     animation: none !important;
   }
-  .mc {
+  .mc:not(.mc-full) {
     background: #02040a;
   }
-  .mc-confirm,
-  .mc-jump,
-  .mc-ship-jump,
-  .mc-flash {
+  .mc:not(.mc-full) .mc-confirm,
+  .mc:not(.mc-full) .mc-jump,
+  .mc:not(.mc-full) .mc-ship-jump,
+  .mc:not(.mc-full) .mc-flash {
     display: none;
   }
-  .mc-shake {
+  .mc:not(.mc-full) .mc-shake {
     animation: none;
   }
   .btn,
@@ -923,4 +923,8 @@ select {
   .lamp.blink {
     animation: none;
   }
+}
+.mc-fullbtn {
+  min-height: 44px;
+  background: rgba(9, 12, 16, 0.7);
 }

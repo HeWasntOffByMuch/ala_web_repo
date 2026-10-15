@@ -36,16 +36,13 @@ function Defs({ u }: { u: string }) {
         <stop offset=".45" stopColor="#a9d7ff" />
         <stop offset="1" stopColor="#78beff" stopOpacity="0" />
       </radialGradient>
-      <filter id={`${u}bloom`} x="-30%" y="-60%" width="160%" height="240%">
-        <feGaussianBlur stdDeviation="6" />
-      </filter>
     </defs>
   )
 }
 
 const Jet = ({ u, x, y, r }: { u: string; x: number; y: number; r: number }) => (
   <>
-    <circle cx={x} cy={y} r={r * 2.1} fill={`url(#${u}jet)`} filter={`url(#${u}bloom)`} opacity=".9" />
+    <circle cx={x} cy={y} r={r * 3} fill={`url(#${u}jet)`} opacity=".9" />
     <circle cx={x} cy={y} r={r} fill="#fff" />
   </>
 )
@@ -83,7 +80,8 @@ function Saucer({ u }: { u: string }) {
       ))}
       <path d="M268 62V46" stroke="#d6c7aa" strokeWidth="2" />
       <ellipse cx="268" cy="44" rx="17" ry="6" fill="#bdae92" stroke="#2c261e" />
-      <path d="M36 118Q200 196 364 118l-12 12Q200 206 48 130z" fill={`url(#${u}thrust)`} filter={`url(#${u}bloom)`} opacity=".95" />
+      <path d="M54 126Q200 190 346 126" fill="none" stroke={`url(#${u}thrust)`} strokeWidth="30" strokeLinecap="round" opacity=".22" />
+      <path d="M54 126Q200 190 346 126" fill="none" stroke={`url(#${u}thrust)`} strokeWidth="16" strokeLinecap="round" opacity=".5" />
       <path d="M54 126Q200 190 346 126" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" opacity=".95" />
     </>
   )
