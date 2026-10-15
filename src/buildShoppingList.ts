@@ -31,3 +31,15 @@ export function buildShoppingList(
   }
   return sections
 }
+
+export const countItems = (sections: ShoppingSection[]) => {
+  const total = sections.reduce((n, s) => n + s.items.length, 0)
+  const done = sections.reduce((n, s) => n + s.items.filter((i) => i.inCart).length, 0)
+  return { total, done, remaining: total - done }
+}
+
+/** Lista jest kompletna, gdy ma produkty i wszystkie są w koszyku. */
+export const isComplete = (sections: ShoppingSection[]) => {
+  const { total, remaining } = countItems(sections)
+  return total > 0 && remaining === 0
+}

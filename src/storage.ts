@@ -73,3 +73,21 @@ export function loadCustomMeals(): Meal[] {
 
 export const saveCustomProducts = (products: Product[]) => writeIds(CUSTOM_PRODUCTS_KEY, products)
 export const saveCustomMeals = (meals: Meal[]) => writeIds(CUSTOM_MEALS_KEY, meals)
+
+export const MUTED_KEY = 'zakupy.muted'
+
+export function loadMuted(): boolean {
+  try {
+    return localStorage.getItem(MUTED_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+export function saveMuted(muted: boolean): void {
+  try {
+    localStorage.setItem(MUTED_KEY, muted ? '1' : '0')
+  } catch {
+    // ignorujemy brak dostępu do storage
+  }
+}

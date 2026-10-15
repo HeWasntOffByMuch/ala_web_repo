@@ -1,90 +1,90 @@
 import { useState } from 'react'
 import type { Meal } from './types'
 import { filterByName } from './text'
-import { inputClass } from './AddMealScreen'
-import { footerClass, headerClass, primaryButton, rowClass, secondaryButton } from './ui'
+import { CartIcon, CheckIcon, Emblem, MealIcon, ShipSchematic, Skyline, SpeakerIcon } from './icons'
 
 interface Props {
   meals: Meal[]
   selected: string[]
+  muted: boolean
+  onToggleMute: () => void
   onToggle: (id: string) => void
   onClear: () => void
   onShowList: () => void
   onAdd: () => void
 }
 
-export default function MealsScreen({ meals, selected, onToggle, onClear, onShowList, onAdd }: Props) {
+export default function MealsScreen({
+  meals,
+  selected,
+  muted,
+  onToggleMute,
+  onToggle,
+  onClear,
+  onShowList,
+  onAdd,
+}: Props) {
   const [query, setQuery] = useState('')
   const visible = filterByName(meals, query)
   return (
     <>
-      <header className={headerClass}>
-        <div className="flex items-center justify-between gap-3">
+      <header className="hdr">
+        <div className="hdr-row">
+          <Emblem className="emblem" />
           <div>
-            <h1>Posiłki</h1>
-            <p className="text-sm font-normal text-zinc-500 dark:text-zinc-400">
-              Wybrano: {selected.length}
+            <h1 className="title">Posiłki</h1>
+            <p className="label">
+              Wybrano: {selected.length} / {meals.length}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onAdd}
-            className="min-h-12 rounded-lg bg-zinc-200 px-4 text-base font-medium dark:bg-zinc-800"
-          >
-            + Nowy
-          </button>
+          <ShipSchematic className="hdr-art" />
         </div>
+      </header>
+      <div className="search-row">
         <input
           type="search"
+          className="field"
           aria-label="Szukaj posiłku"
-          placeholder="Szukaj posiłku"
+          placeholder="Szukaj posiłku..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className={`${inputClass} mt-2 font-normal`}
         />
-      </header>
-      <ul className="flex-1">
-        {visible.length === 0 && (
-          <li className="p-4 text-zinc-500 dark:text-zinc-400">Brak posiłków dla „{query}”.</li>
-        )}
-        {visible.map((meal) => {
-          const isSelected = selected.includes(meal.id)
-          return (
+        <button type="button" className="btn btn-primary btn-square" aria-label="Dodaj posiłek" onClick={onAdd}>
+          +
+        </button>
+      </div>
+      <main className="main">
+        <ul className="rows meals">
+          {visible.length === 0 && <li className="empty">Brak posiłków dla „{query}”.</li>}
+          {visible.map((meal) => (
             <li key={meal.id}>
               <button
                 type="button"
                 role="checkbox"
-                aria-checked={isSelected}
+                aria-checked={selected.includes(meal.id)}
                 onClick={() => onToggle(meal.id)}
-                className={`${rowClass} ${isSelected ? 'bg-green-100 font-medium dark:bg-green-950' : ''}`}
+                className="row"
               >
-                <span
-                  aria-hidden
-                  className={`flex size-6 shrink-0 items-center justify-center rounded border-2 ${
-                    isSelected
-                      ? 'border-green-600 bg-green-600 text-white'
-                      : 'border-zinc-400 dark:border-zinc-600'
-                  }`}
-                >
-                  {isSelected && '✓'}
+                <span className="chk" aria-hidden>
+                  <CheckIcon />
                 </span>
-                {meal.name}
+                <span className="row-name">{meal.name}</span>
+                <MealIcon id={meal.id} className="row-icon" />
               </button>
             </li>
-          )
-        })}
-      </ul>
-      <div className={footerClass}>
-        <button type="button" className={secondaryButton} onClick={onClear}>
+          ))}
+        </ul>
+        <Skyline className="horizon" />
+      </main>
+      <div className="dock">
+        <button type="button" className="btn btn-ghost" aria-pressed={muted} onClick={onToggleMute} aria-label={muted ? 'Włącz dźwięk' : 'Wyłącz dźwięk'}>
+          <SpeakerIcon muted={muted} />
+        </button>
+        <button type="button" className="btn" onClick={onClear}>
           Wyczyść wybór
         </button>
-        <button
-          type="button"
-          className={primaryButton}
-          disabled={selected.length === 0}
-          onClick={onShowList}
-        >
-          Lista zakupów
+        <button type="button" className="btn btn-primary" disabled={selected.length === 0} onClick={onShowList}>
+          <CartIcon /> Lista zakupów
         </button>
       </div>
     </>

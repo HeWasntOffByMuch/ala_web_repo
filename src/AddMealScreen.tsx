@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Meal, Product } from './types'
 import { filterByName, normalize } from './text'
-import { footerClass, headerClass, primaryButton, rowClass, secondaryButton } from './ui'
+import { CheckIcon, Emblem } from './icons'
 
 interface Props {
   categories: string[]
@@ -12,9 +12,6 @@ interface Props {
 
 let counter = 0
 const newId = (prefix: string) => `${prefix}-${Date.now().toString(36)}${(counter++).toString(36)}`
-
-export const inputClass =
-  'min-h-12 w-full rounded-lg border border-zinc-300 bg-white px-3 text-base dark:border-zinc-700 dark:bg-zinc-800'
 
 export default function AddMealScreen({ categories, products, onSave, onCancel }: Props) {
   const [name, setName] = useState('')
@@ -46,24 +43,28 @@ export default function AddMealScreen({ categories, products, onSave, onCancel }
 
   return (
     <>
-      <header className={headerClass}>
-        <h1>Nowy posiłek</h1>
+      <header className="hdr">
+        <div className="hdr-row">
+          <Emblem className="emblem" style={{ width: 44, height: 44 }} />
+          <h1 className="title">Nowy posiłek</h1>
+        </div>
       </header>
-      <div className="flex flex-1 flex-col gap-3 p-4 pb-2">
-        <label className="flex flex-col gap-1 text-sm text-zinc-500 dark:text-zinc-400">
+      <main className="main">
+      <div style={{ display: 'grid', gap: 12, padding: '14px 14px 8px' }}>
+        <label className="field-label label">
           Nazwa posiłku
           <input
-            className={inputClass}
+            className="field"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="np. Zupa pomidorowa"
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <label className="field-label label">
           Produkty (wybrano: {chosen.length})
           <input
             type="search"
-            className={inputClass}
+            className="field"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Szukaj produktu lub wpisz nowy"
@@ -71,10 +72,11 @@ export default function AddMealScreen({ categories, products, onSave, onCancel }
         </label>
       </div>
       {trimmed !== '' && !exists && (
-        <div className="flex gap-2 px-4 pb-3">
+        <div style={{ display: 'flex', gap: 8, padding: '0 14px 12px' }}>
           <select
             aria-label="Kategoria nowego produktu"
-            className={`${inputClass} flex-1`}
+            className="field"
+            style={{ flex: 1, minWidth: 0 }}
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >
@@ -82,12 +84,12 @@ export default function AddMealScreen({ categories, products, onSave, onCancel }
               <option key={c}>{c}</option>
             ))}
           </select>
-          <button type="button" className={`${primaryButton} flex-[1.4]`} onClick={addProduct}>
+          <button type="button" className="btn btn-primary" style={{ flex: 1.4 }} onClick={addProduct}>
             Dodaj „{trimmed}”
           </button>
         </div>
       )}
-      <ul>
+      <ul className="rows">
         {matches.map((p) => {
           const on = chosen.includes(p.id)
           return (
@@ -97,29 +99,24 @@ export default function AddMealScreen({ categories, products, onSave, onCancel }
                 role="checkbox"
                 aria-checked={on}
                 onClick={() => toggle(p.id)}
-                className={`${rowClass} ${on ? 'bg-green-100 font-medium dark:bg-green-950' : ''}`}
+                className="row"
               >
-                <span
-                  aria-hidden
-                  className={`flex size-6 shrink-0 items-center justify-center rounded border-2 ${
-                    on ? 'border-green-600 bg-green-600 text-white' : 'border-zinc-400 dark:border-zinc-600'
-                  }`}
-                >
-                  {on && '✓'}
+                <span className="chk" aria-hidden>
+                  <CheckIcon />
                 </span>
-                <span className="flex-1">{p.name}</span>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">{p.category}</span>
+                <span className="row-name">{p.name}</span>
+                <span className="row-meta">{p.category}</span>
               </button>
             </li>
           )
         })}
       </ul>
-      <div className="flex-1" />
-      <div className={footerClass}>
-        <button type="button" className={secondaryButton} onClick={onCancel}>
+      </main>
+      <div className="dock">
+        <button type="button" className="btn" onClick={onCancel}>
           Anuluj
         </button>
-        <button type="button" className={primaryButton} disabled={!canSave} onClick={save}>
+        <button type="button" className="btn btn-primary" disabled={!canSave} onClick={save}>
           Zapisz posiłek
         </button>
       </div>

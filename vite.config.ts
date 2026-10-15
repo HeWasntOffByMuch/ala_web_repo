@@ -16,7 +16,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg'],
-      workbox: { globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'] },
+      workbox: { globPatterns: ['**/*.{js,css,html,svg,png,woff2,webmanifest}'] },
       manifest: {
         name: 'Zakupy',
         short_name: 'Zakupy',

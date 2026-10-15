@@ -1,83 +1,155 @@
 import type { ShoppingSection } from './types'
-import { footerClass, headerClass, primaryButton, rowClass, secondaryButton } from './ui'
+import { CheckIcon, Emblem, Skyline, SpeakerIcon } from './icons'
 
 interface Props {
   sections: ShoppingSection[]
+  done: number
+  total: number
+  complete: boolean
+  muted: boolean
+  onToggleMute: () => void
   removedCount: number
   onRemove: (id: string) => void
   onRestore: () => void
   onToggle: (id: string) => void
   onClearCart: () => void
   onBack: () => void
+  onReplay: () => void
 }
 
-export default function ShoppingScreen({ sections, removedCount, onRemove, onRestore, onToggle, onClearCart, onBack }: Props) {
+export default function ShoppingScreen({
+  sections,
+  done,
+  total,
+  complete,
+  muted,
+  onToggleMute,
+  removedCount,
+  onRemove,
+  onRestore,
+  onToggle,
+  onClearCart,
+  onBack,
+  onReplay,
+}: Props) {
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100)
+  const bar = (
+    <div
+      className={`prog ${complete ? 'done' : ''}`}
+      role="progressbar"
+      aria-label="Status misji"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={pct}
+    >
+      <div className="prog-fill" style={{ width: `${pct}%` }} />
+    </div>
+  )
+
   return (
     <>
-      <header className={headerClass}>
-        <h1>Lista zakupów</h1>
+      <header className="hdr">
+        <div className="hdr-row">
+          <Emblem className="emblem" style={{ width: 44, height: 44 }} />
+          <div>
+            <h1 className="title" style={{ fontSize: 22, whiteSpace: 'nowrap' }}>
+              Lista zaopatrzenia
+            </h1>
+            <p className="label">
+              Zebrane: {done} / {total}
+            </p>
+          </div>
+          <span className={`pct ${complete ? 'done' : ''}`}>{pct}%</span>
+        </div>
+        {bar}
       </header>
-      <div className="flex-1">
-        {sections.map((section) => (
-          <section key={section.category}>
-            <h2 className="bg-zinc-100 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
-              {section.category}
-            </h2>
-            <ul>
-              {section.items.map((item) => (
-                <li key={item.id} className="flex">
-                  <button
-                    type="button"
-                    role="checkbox"
-                    aria-checked={item.inCart}
-                    onClick={() => onToggle(item.id)}
-                    className={`${rowClass} flex-1 ${
-                      item.inCart ? 'text-zinc-400 line-through dark:text-zinc-600' : ''
-                    }`}
-                  >
-                    <span
-                      aria-hidden
-                      className={`flex size-6 shrink-0 items-center justify-center rounded border-2 transition-colors ${
-                        item.inCart
-                          ? 'border-zinc-400 bg-zinc-400 text-white dark:border-zinc-600 dark:bg-zinc-600'
-                          : 'border-zinc-400 dark:border-zinc-600'
-                      }`}
-                    >
-                      {item.inCart && '✓'}
-                    </span>
-                    {item.name}
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={`Usuń ${item.name}`}
-                    onClick={() => onRemove(item.id)}
-                    className="min-h-12 w-14 shrink-0 border-b border-zinc-200 text-xl text-zinc-400 dark:border-zinc-800 dark:text-zinc-500"
-                  >
-                    ✕
-                  </button>
-                </li>
+
+      <main className="main">
+        <div className="shopping-grid">
+          <aside className="panel brackets" aria-label="Status misji">
+            <div className="hdr-row">
+              <span className="label">Status misji</span>
+              <span className={`pct ${complete ? 'done' : ''}`}>{pct}%</span>
+            </div>
+            {bar}
+            <div className="readouts">
+              <div className="readout">
+                <span className="label">Zebrane zasoby</span>
+                <b>{done}</b>
+              </div>
+              <div className="readout">
+                <span className="label">Pozostałe produkty</span>
+                <b>{total - done}</b>
+              </div>
+            </div>
+            <div className={`lamps ${complete ? 'done' : ''}`} aria-hidden>
+              {[0, 1, 2, 3, 4].map((i) => (
+                <span key={i} className={`lamp ${complete || i < Math.ceil(pct / 20) ? 'on' : ''} ${!complete && i === Math.ceil(pct / 20) - 1 ? 'blink' : ''}`} />
               ))}
-            </ul>
-          </section>
-        ))}
-        {sections.length === 0 && (
-          <p className="p-4 text-zinc-500 dark:text-zinc-400">Lista jest pusta.</p>
-        )}
-        {removedCount > 0 && (
-          <button
-            type="button"
-            onClick={onRestore}
-            className="min-h-12 w-full px-4 text-left text-base text-green-700 dark:text-green-400"
-          >
-            Przywróć usunięte ({removedCount})
-          </button>
-        )}
-      </div>
-      <div className={footerClass}>
-        <button type="button" className={secondaryButton} onClick={onClearCart}>
+            </div>
+            {complete && (
+              <button type="button" className="btn" style={{ width: '100%', marginTop: 12 }} onClick={onReplay}>
+                Odtwórz sekwencję
+              </button>
+            )}
+          </aside>
+
+          <div className="sections">
+            {sections.map((section) => (
+              <section key={section.category}>
+                <div className="sec-head">
+                  <h2>{section.category}</h2>
+                  <span className="sec-count">
+                    {section.items.filter((i) => i.inCart).length}/{section.items.length}
+                  </span>
+                </div>
+                <ul className="rows" style={{ paddingBlock: 4 }}>
+                  {section.items.map((item) => (
+                    <li key={item.id} className="item-wrap">
+                      <button
+                        type="button"
+                        role="checkbox"
+                        aria-checked={item.inCart}
+                        onClick={() => onToggle(item.id)}
+                        className="row item"
+                      >
+                        <span className="chk" aria-hidden>
+                          <CheckIcon />
+                        </span>
+                        <span className="row-name">{item.name}</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="x-btn"
+                        aria-label={`Usuń ${item.name}`}
+                        onClick={() => onRemove(item.id)}
+                      >
+                        ✕
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+            {sections.length === 0 && <p className="empty">Lista jest pusta.</p>}
+            {removedCount > 0 && (
+              <button type="button" className="link-btn" onClick={onRestore}>
+                Przywróć usunięte ({removedCount})
+              </button>
+            )}
+          </div>
+        </div>
+        <Skyline className="horizon" />
+      </main>
+
+      <div className="dock">
+        <button type="button" className="btn btn-ghost" aria-pressed={muted} onClick={onToggleMute} aria-label={muted ? 'Włącz dźwięk' : 'Wyłącz dźwięk'}>
+          <SpeakerIcon muted={muted} />
+        </button>
+        <button type="button" className="btn" onClick={onClearCart}>
           Wyczyść koszyk
         </button>
-        <button type="button" className={primaryButton} onClick={onBack}>
+        <button type="button" className="btn btn-primary" onClick={onBack}>
           Wróć do posiłków
         </button>
       </div>
