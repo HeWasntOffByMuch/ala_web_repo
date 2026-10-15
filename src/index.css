@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+
+@layer base {
+  :root {
+    color-scheme: light dark;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-neutral-100 text-neutral-900 antialiased dark:bg-black dark:text-neutral-100;
+  }
+}

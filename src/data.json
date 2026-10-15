@@ -1,0 +1,119 @@
+{
+  "categories": [
+    "Warzywa i owoce",
+    "Mięso i ryby",
+    "Nabiał",
+    "Pieczywo",
+    "Suche",
+    "Słoiki i konserwy",
+    "Mrożonki",
+    "Przyprawy",
+    "Napoje"
+  ],
+  "products": [
+    { "id": "pomidory", "name": "Pomidory", "category": "Warzywa i owoce" },
+    { "id": "cebula", "name": "Cebula", "category": "Warzywa i owoce" },
+    { "id": "czosnek", "name": "Czosnek", "category": "Warzywa i owoce" },
+    { "id": "papryka", "name": "Papryka", "category": "Warzywa i owoce" },
+    { "id": "cukinia", "name": "Cukinia", "category": "Warzywa i owoce" },
+    { "id": "ziemniaki", "name": "Ziemniaki", "category": "Warzywa i owoce" },
+    { "id": "marchew", "name": "Marchew", "category": "Warzywa i owoce" },
+    { "id": "salata", "name": "Sałata", "category": "Warzywa i owoce" },
+    { "id": "cytryna", "name": "Cytryna", "category": "Warzywa i owoce" },
+    { "id": "natka-pietruszki", "name": "Natka pietruszki", "category": "Warzywa i owoce" },
+    { "id": "jablka", "name": "Jabłka", "category": "Warzywa i owoce" },
+
+    { "id": "mieso-mielone", "name": "Mięso mielone", "category": "Mięso i ryby" },
+    { "id": "kurczak", "name": "Kurczak", "category": "Mięso i ryby" },
+    { "id": "losos", "name": "Łosoś", "category": "Mięso i ryby" },
+    { "id": "boczek", "name": "Boczek", "category": "Mięso i ryby" },
+    { "id": "kielbasa", "name": "Kiełbasa", "category": "Mięso i ryby" },
+
+    { "id": "jajka", "name": "Jajka", "category": "Nabiał" },
+    { "id": "mleko", "name": "Mleko", "category": "Nabiał" },
+    { "id": "maslo", "name": "Masło", "category": "Nabiał" },
+    { "id": "smietana", "name": "Śmietana", "category": "Nabiał" },
+    { "id": "parmezan", "name": "Parmezan", "category": "Nabiał" },
+    { "id": "ser-zolty", "name": "Ser żółty", "category": "Nabiał" },
+    { "id": "twarog", "name": "Twaróg", "category": "Nabiał" },
+
+    { "id": "chleb", "name": "Chleb", "category": "Pieczywo" },
+    { "id": "tortille", "name": "Tortille", "category": "Pieczywo" },
+
+    { "id": "makaron", "name": "Makaron", "category": "Suche" },
+    { "id": "ryz", "name": "Ryż", "category": "Suche" },
+    { "id": "maka", "name": "Mąka", "category": "Suche" },
+    { "id": "oliwa", "name": "Oliwa", "category": "Suche" },
+    { "id": "platki-owsiane", "name": "Płatki owsiane", "category": "Suche" },
+
+    { "id": "passata", "name": "Passata", "category": "Słoiki i konserwy" },
+    { "id": "mleko-kokosowe", "name": "Mleko kokosowe", "category": "Słoiki i konserwy" },
+    { "id": "kukurydza", "name": "Kukurydza", "category": "Słoiki i konserwy" },
+    { "id": "fasola", "name": "Czerwona fasola", "category": "Słoiki i konserwy" },
+    { "id": "dzem", "name": "Dżem", "category": "Słoiki i konserwy" },
+
+    { "id": "groszek", "name": "Groszek", "category": "Mrożonki" },
+    { "id": "mieszanka-chinska", "name": "Mieszanka chińska", "category": "Mrożonki" },
+    { "id": "szpinak", "name": "Szpinak", "category": "Mrożonki" },
+
+    { "id": "papryka-slodka", "name": "Papryka słodka mielona", "category": "Przyprawy" },
+    { "id": "oregano", "name": "Oregano", "category": "Przyprawy" },
+    { "id": "curry", "name": "Curry", "category": "Przyprawy" },
+    { "id": "sos-sojowy", "name": "Sos sojowy", "category": "Przyprawy" },
+
+    { "id": "sok-pomaranczowy", "name": "Sok pomarańczowy", "category": "Napoje" },
+    { "id": "napoj-owsiany", "name": "Napój owsiany", "category": "Napoje" }
+  ],
+  "meals": [
+    {
+      "id": "spaghetti-bolognese",
+      "name": "Spaghetti bolognese",
+      "products": ["makaron", "mieso-mielone", "passata", "cebula", "czosnek", "marchew", "parmezan", "oregano", "oliwa"]
+    },
+    {
+      "id": "leczo",
+      "name": "Leczo",
+      "products": ["kielbasa", "papryka", "cukinia", "cebula", "pomidory", "czosnek", "papryka-slodka", "chleb"]
+    },
+    {
+      "id": "kurczak-curry",
+      "name": "Kurczak curry",
+      "products": ["kurczak", "ryz", "mleko-kokosowe", "cebula", "czosnek", "curry", "groszek"]
+    },
+    {
+      "id": "nalesniki",
+      "name": "Naleśniki z twarogiem",
+      "products": ["maka", "mleko", "jajka", "twarog", "maslo", "dzem"]
+    },
+    {
+      "id": "jajecznica",
+      "name": "Jajecznica z boczkiem",
+      "products": ["jajka", "boczek", "cebula", "maslo", "chleb", "sok-pomaranczowy"]
+    },
+    {
+      "id": "losos-ziemniaki",
+      "name": "Łosoś z ziemniakami",
+      "products": ["losos", "ziemniaki", "cytryna", "maslo", "szpinak", "czosnek", "smietana"]
+    },
+    {
+      "id": "tortille-kurczak",
+      "name": "Tortille z kurczakiem",
+      "products": ["tortille", "kurczak", "papryka", "kukurydza", "fasola", "salata", "pomidory", "ser-zolty", "smietana"]
+    },
+    {
+      "id": "zupa-pomidorowa",
+      "name": "Zupa pomidorowa",
+      "products": ["passata", "marchew", "natka-pietruszki", "makaron", "smietana", "cebula"]
+    },
+    {
+      "id": "ryz-smazony",
+      "name": "Ryż smażony z warzywami",
+      "products": ["ryz", "mieszanka-chinska", "jajka", "sos-sojowy", "czosnek"]
+    },
+    {
+      "id": "owsianka",
+      "name": "Owsianka z jabłkiem",
+      "products": ["platki-owsiane", "napoj-owsiany", "jablka"]
+    }
+  ]
+}
