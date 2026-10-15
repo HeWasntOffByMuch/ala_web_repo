@@ -42,4 +42,11 @@ describe('buildShoppingList', () => {
     expect(sections).toHaveLength(1)
     expect(sections[0].items.map((i) => i.id)).toEqual(['czosnek'])
   })
+
+  it('pomija usunięte produkty', () => {
+    const sections = buildShoppingList(['a', 'b'], [], data, ['pomidory', 'mleko'])
+    const ids = sections.flatMap((s) => s.items.map((i) => i.id))
+    expect(ids).not.toContain('pomidory')
+    expect(sections.map((s) => s.category)).toEqual(['Warzywa', 'Suche'])
+  })
 })

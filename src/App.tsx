@@ -6,10 +6,12 @@ import {
   loadCustomMeals,
   loadCustomProducts,
   loadInCart,
+  loadRemoved,
   loadSelectedMeals,
   saveCustomMeals,
   saveCustomProducts,
   saveInCart,
+  saveRemoved,
   saveSelectedMeals,
 } from './storage'
 import AddMealScreen from './AddMealScreen'
@@ -35,15 +37,24 @@ export default function App() {
   const appData = useMemo(() => mergeData(customProducts, customMeals), [customProducts, customMeals])
   const [selectedMeals, setSelectedMeals] = useState(() => loadSelectedMeals(appData))
   const [inCart, setInCart] = useState(() => loadInCart(appData))
+  const [removed, setRemoved] = useState(() => loadRemoved(appData))
 
   useEffect(() => saveSelectedMeals(selectedMeals), [selectedMeals])
   useEffect(() => saveInCart(inCart), [inCart])
+  useEffect(() => saveRemoved(removed), [removed])
   useEffect(() => saveCustomProducts(customProducts), [customProducts])
   useEffect(() => saveCustomMeals(customMeals), [customMeals])
 
   const sections = useMemo(
-    () => buildShoppingList(selectedMeals, inCart, appData),
-    [selectedMeals, inCart, appData],
+    () => buildShoppingList(selectedMeals, inCart, appData, removed),
+    [selectedMeals, inCart, appData, removed],
+  )
+
+  const removedCount = useMemo(
+    () =>
+      buildShoppingList(selectedMeals, [], appData).reduce((n, sec) => n + sec.items.length, 0) -
+      sections.reduce((n, sec) => n + sec.items.length, 0),
+    [selectedMeals, appData, sections],
   )
 
   return (
@@ -65,12 +76,18 @@ export default function App() {
           onAdd={() => setScreen('add')}
           selected={selectedMeals}
           onToggle={(id) => setSelectedMeals((s) => toggle(s, id))}
-          onClear={() => setSelectedMeals([])}
+          onClear={() => {
+            setSelectedMeals([])
+            setRemoved([])
+          }}
           onShowList={() => setScreen('list')}
         />
       ) : (
         <ShoppingScreen
           sections={sections}
+          removedCount={removedCount}
+          onRemove={(id) => setRemoved((r) => (r.includes(id) ? r : [...r, id]))}
+          onRestore={() => setRemoved([])}
           onToggle={(id) => setInCart((c) => toggle(c, id))}
           onClearCart={() => setInCart([])}
           onBack={() => setScreen('meals')}

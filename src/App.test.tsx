@@ -57,3 +57,18 @@ describe('App: wyszukiwanie i dodawanie posiłków', () => {
     expect(screen.getByRole('checkbox', { name: 'Ogórek' })).toBeInTheDocument()
   })
 })
+
+describe('App: usuwanie produktów z listy', () => {
+  it('usuwa produkt z listy i pozwala go przywrócić', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('checkbox', { name: 'Spaghetti' }))
+    await user.click(screen.getByRole('button', { name: 'Lista zakupów' }))
+
+    await user.click(screen.getByRole('button', { name: 'Usuń Makaron' }))
+    expect(screen.queryByRole('checkbox', { name: 'Makaron' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Przywróć usunięte (1)' }))
+    expect(screen.getByRole('checkbox', { name: 'Makaron' })).toBeInTheDocument()
+  })
+})

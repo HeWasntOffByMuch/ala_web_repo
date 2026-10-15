@@ -6,15 +6,17 @@ export function buildShoppingList(
   selectedMealIds: string[],
   inCartIds: string[],
   data: Data,
+  removedIds: string[] = [],
 ): ShoppingSection[] {
   const productsById = new Map(data.products.map((p) => [p.id, p]))
   const mealsById = new Map(data.meals.map((m) => [m.id, m]))
   const inCart = new Set(inCartIds)
+  const removed = new Set(removedIds)
 
   const productIds = new Set<string>()
   for (const mealId of selectedMealIds) {
     for (const productId of mealsById.get(mealId)?.products ?? []) {
-      if (productsById.has(productId)) productIds.add(productId)
+      if (productsById.has(productId) && !removed.has(productId)) productIds.add(productId)
     }
   }
 

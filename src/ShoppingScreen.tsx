@@ -3,12 +3,15 @@ import { footerClass, headerClass, primaryButton, rowClass, secondaryButton } fr
 
 interface Props {
   sections: ShoppingSection[]
+  removedCount: number
+  onRemove: (id: string) => void
+  onRestore: () => void
   onToggle: (id: string) => void
   onClearCart: () => void
   onBack: () => void
 }
 
-export default function ShoppingScreen({ sections, onToggle, onClearCart, onBack }: Props) {
+export default function ShoppingScreen({ sections, removedCount, onRemove, onRestore, onToggle, onClearCart, onBack }: Props) {
   return (
     <>
       <header className={headerClass}>
@@ -22,13 +25,13 @@ export default function ShoppingScreen({ sections, onToggle, onClearCart, onBack
             </h2>
             <ul>
               {section.items.map((item) => (
-                <li key={item.id}>
+                <li key={item.id} className="flex">
                   <button
                     type="button"
                     role="checkbox"
                     aria-checked={item.inCart}
                     onClick={() => onToggle(item.id)}
-                    className={`${rowClass} ${
+                    className={`${rowClass} flex-1 ${
                       item.inCart ? 'text-zinc-400 line-through dark:text-zinc-600' : ''
                     }`}
                   >
@@ -44,11 +47,31 @@ export default function ShoppingScreen({ sections, onToggle, onClearCart, onBack
                     </span>
                     {item.name}
                   </button>
+                  <button
+                    type="button"
+                    aria-label={`Usuń ${item.name}`}
+                    onClick={() => onRemove(item.id)}
+                    className="min-h-12 w-14 shrink-0 border-b border-zinc-200 text-xl text-zinc-400 dark:border-zinc-800 dark:text-zinc-500"
+                  >
+                    ✕
+                  </button>
                 </li>
               ))}
             </ul>
           </section>
         ))}
+        {sections.length === 0 && (
+          <p className="p-4 text-zinc-500 dark:text-zinc-400">Lista jest pusta.</p>
+        )}
+        {removedCount > 0 && (
+          <button
+            type="button"
+            onClick={onRestore}
+            className="min-h-12 w-full px-4 text-left text-base text-green-700 dark:text-green-400"
+          >
+            Przywróć usunięte ({removedCount})
+          </button>
+        )}
       </div>
       <div className={footerClass}>
         <button type="button" className={secondaryButton} onClick={onClearCart}>

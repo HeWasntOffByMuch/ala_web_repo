@@ -27,6 +27,11 @@ export const loadSelectedMeals = (data: Data) =>
 export const loadInCart = (data: Data) =>
   readIds(IN_CART_KEY, new Set(data.products.map((p) => p.id)))
 
+export const REMOVED_KEY = 'zakupy.removed'
+export const loadRemoved = (data: Data) =>
+  readIds(REMOVED_KEY, new Set(data.products.map((p) => p.id)))
+export const saveRemoved = (ids: string[]) => writeIds(REMOVED_KEY, ids)
+
 export const saveSelectedMeals = (ids: string[]) => writeIds(SELECTED_MEALS_KEY, ids)
 export const saveInCart = (ids: string[]) => writeIds(IN_CART_KEY, ids)
 
