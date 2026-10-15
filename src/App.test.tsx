@@ -30,3 +30,30 @@ describe('App', () => {
     expect(within(makaron.closest('section')!).getByText('Suche')).toBeInTheDocument()
   })
 })
+
+describe('App: wyszukiwanie i dodawanie posiłków', () => {
+  it('filtruje listę posiłków', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.type(screen.getByRole('searchbox', { name: 'Szukaj posiłku' }), 'losos')
+    expect(screen.getByRole('checkbox', { name: 'Łosoś z ziemniakami' })).toBeInTheDocument()
+    expect(screen.queryByRole('checkbox', { name: 'Spaghetti' })).not.toBeInTheDocument()
+  })
+
+  it('dodaje własny posiłek z nowym produktem i trafia on na listę zakupów', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('button', { name: '+ Nowy' }))
+    await user.type(screen.getByPlaceholderText('np. Zupa pomidorowa'), 'Sałatka grecka')
+    await user.type(screen.getByPlaceholderText('Szukaj produktu lub wpisz nowy'), 'feta')
+    await user.click(screen.getByRole('button', { name: 'Dodaj „feta”' }))
+    await user.type(screen.getByPlaceholderText('Szukaj produktu lub wpisz nowy'), 'ogórek')
+    await user.click(screen.getByRole('checkbox', { name: /Ogórek/ }))
+    await user.click(screen.getByRole('button', { name: 'Zapisz posiłek' }))
+
+    await user.click(screen.getByRole('checkbox', { name: 'Sałatka grecka' }))
+    await user.click(screen.getByRole('button', { name: 'Lista zakupów' }))
+    expect(screen.getByRole('checkbox', { name: 'feta' })).toBeInTheDocument()
+    expect(screen.getByRole('checkbox', { name: 'Ogórek' })).toBeInTheDocument()
+  })
+})

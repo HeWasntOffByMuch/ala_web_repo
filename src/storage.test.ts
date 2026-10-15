@@ -1,5 +1,11 @@
 import {
+  CUSTOM_MEALS_KEY,
+  CUSTOM_PRODUCTS_KEY,
   IN_CART_KEY,
+  loadCustomMeals,
+  loadCustomProducts,
+  saveCustomMeals,
+  saveCustomProducts,
   SELECTED_MEALS_KEY,
   loadInCart,
   loadSelectedMeals,
@@ -46,5 +52,22 @@ describe('storage', () => {
 
   it('brak wartości daje pustą tablicę', () => {
     expect(loadSelectedMeals(data)).toEqual([])
+  })
+})
+
+describe('custom data', () => {
+  it('zapisuje i odczytuje własne posiłki i produkty, odrzuca śmieci', () => {
+    saveCustomProducts([{ id: 'moj-1', name: 'Rzodkiewka', category: 'K' }])
+    saveCustomMeals([{ id: 'moj-m', name: 'Sałatka', products: ['moj-1', 'p1'] }])
+    expect(loadCustomProducts(data)).toHaveLength(1)
+    expect(loadCustomMeals()).toHaveLength(1)
+
+    localStorage.setItem(
+      CUSTOM_PRODUCTS_KEY,
+      JSON.stringify([{ id: 'x', name: 'X', category: 'Nie ma' }, 5, null]),
+    )
+    localStorage.setItem(CUSTOM_MEALS_KEY, '{zepsute')
+    expect(loadCustomProducts(data)).toEqual([])
+    expect(loadCustomMeals()).toEqual([])
   })
 })
