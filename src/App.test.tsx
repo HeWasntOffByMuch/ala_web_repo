@@ -137,3 +137,25 @@ describe('App: pochwała i wysyłka do żony', () => {
     expect(await within(dialog).findByRole('status')).toHaveTextContent(/Udostępnianie nie działa/)
   })
 })
+
+describe('App: alternatywny ekran sukcesu (kantyna)', () => {
+  it('pokazuje kantynę po hiperprzestrzeni, z postacią, pochwałą i wysyłką', async () => {
+    localStorage.setItem('zakupy.lastSuccess', 'hyperspace')
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('checkbox', { name: 'Owsianka z sokiem' }))
+    await user.click(screen.getByRole('button', { name: 'Lista zakupów' }))
+    for (const name of ['Mleko', 'Płatki owsiane', 'Sok pomarańczowy', 'Woda mineralna']) {
+      await user.click(screen.getByRole('checkbox', { name }))
+    }
+    const dialog = screen.getByRole('dialog', { name: 'Na zdrowie, Johnny' })
+    expect(dialog.querySelectorAll('.cn-figure img')).toHaveLength(6)
+    expect(dialog.querySelectorAll('.cn-figure img.active')).toHaveLength(1)
+    expect(within(dialog).getByText(/Johnny/, { selector: '.cn-praise' })).toBeInTheDocument()
+    expect(within(dialog).getByRole('button', { name: 'Wyślij żonie screena' })).toBeInTheDocument()
+
+    await user.click(within(dialog).getByRole('button', { name: /Powrót do bazy/ }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Posiłki' })).toBeInTheDocument()
+  })
+})

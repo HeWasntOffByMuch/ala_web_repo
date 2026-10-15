@@ -1,0 +1,23 @@
+{
+  "fps": "variable",
+  "sequence": [
+    0,
+    1,
+    2,
+    3,
+    2,
+    4,
+    0
+  ],
+  "durations_ms": [
+    500,
+    330,
+    480,
+    800,
+    330,
+    650,
+    500
+  ],
+  "pose_count": 6,
+  "note": "Pose 5 is an optional alternate, not used by default. Frames are cutout illustration crops, not a rig."
+}

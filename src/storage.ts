@@ -91,3 +91,21 @@ export function saveMuted(muted: boolean): void {
     // ignorujemy brak dostępu do storage
   }
 }
+
+export const LAST_SUCCESS_KEY = 'zakupy.lastSuccess'
+
+export function loadLastSuccess(): string | null {
+  try {
+    return localStorage.getItem(LAST_SUCCESS_KEY)
+  } catch {
+    return null
+  }
+}
+
+export function saveLastSuccess(value: string): void {
+  try {
+    localStorage.setItem(LAST_SUCCESS_KEY, value)
+  } catch {
+    // ignorujemy brak dostępu do storage
+  }
+}

@@ -1,3 +1,4 @@
+import { POSES } from './assets/drinker'
 import { NAME, produkty } from './praise'
 
 const W = 1080
@@ -172,4 +173,135 @@ export async function shareCompletion(blob: Blob | null, text: string): Promise<
     /* kopiowanie jest opcjonalne */
   }
   return 'fallback'
+}
+
+function loadImage(src: string): Promise<HTMLImageElement | null> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.onload = () => resolve(img)
+    img.onerror = () => resolve(null)
+    img.src = src
+  })
+}
+
+/** Karta „na zdrowie" w stylu kantyny: półki z butelkami, postać z szklanką, podpis. */
+export async function renderCantinaCard({ count, praise }: { count: number; praise: string }): Promise<Blob | null> {
+  try {
+    const canvas = document.createElement('canvas')
+    canvas.width = W
+    canvas.height = H
+    const g = canvas.getContext('2d')
+    if (!g) return null
+    await Promise.all(
+      ['700 120px Oswald', '600 40px "Barlow Semi Condensed"'].map((f) => document.fonts?.load(f).catch(() => {})),
+    )
+    const bg = g.createLinearGradient(0, 0, 0, H)
+    bg.addColorStop(0, '#1d1109')
+    bg.addColorStop(1, '#0a0605')
+    g.fillStyle = bg
+    g.fillRect(0, 0, W, H)
+    const glow = g.createRadialGradient(W / 2, 640, 0, W / 2, 640, 620)
+    glow.addColorStop(0, 'rgba(255,179,92,.38)')
+    glow.addColorStop(1, 'rgba(255,179,92,0)')
+    g.fillStyle = glow
+    g.fillRect(0, 0, W, H)
+
+    // półki z butelkami
+    const cols = ['#e7a23d', '#3fb8a8', '#c4509a', '#7fcf92', '#e76b37', '#78beff', '#d6a45d']
+    let s = 3
+    const rnd = () => ((s = (s * 1664525 + 1013904223) % 4294967296) / 4294967296)
+    for (const cx of [190, 540, 890]) {
+      g.fillStyle = '#2a190c'
+      g.strokeStyle = 'rgba(201,135,63,.55)'
+      g.lineWidth = 4
+      g.beginPath()
+      g.moveTo(cx - 150, 1000)
+      g.lineTo(cx - 150, 560)
+      g.arc(cx, 560, 150, Math.PI, 0)
+      g.lineTo(cx + 150, 1000)
+      g.closePath()
+      g.fill()
+      g.stroke()
+      for (const y of [700, 900]) {
+        g.fillStyle = '#6b4524'
+        g.fillRect(cx - 140, y, 280, 10)
+        let x = cx - 134
+        while (x < cx + 110) {
+          const w = 24 + rnd() * 20
+          const h = 56 + rnd() * 80
+          g.fillStyle = cols[Math.floor(rnd() * cols.length)]
+          g.globalAlpha = 0.9
+          g.fillRect(x, y - h, w, h)
+          g.fillRect(x + w * 0.25, y - h - 18, w * 0.5, 20)
+          g.globalAlpha = 1
+          x += w + 8 + rnd() * 10
+        }
+      }
+    }
+
+    const shade = g.createLinearGradient(0, 0, 0, H)
+    shade.addColorStop(0, 'rgba(10,6,5,.85)')
+    shade.addColorStop(0.3, 'rgba(10,6,5,0)')
+    shade.addColorStop(0.7, 'rgba(10,6,5,0)')
+    shade.addColorStop(1, 'rgba(10,6,5,.9)')
+    g.fillStyle = shade
+    g.fillRect(0, 0, W, H)
+
+    // postać (klatka z łykiem), dolna krawędź schowana za blatem
+    const img = await loadImage(POSES[3])
+    if (img) {
+      const ph = 760
+      const pw = (img.width / img.height) * ph
+      g.shadowColor = 'rgba(0,0,0,.7)'
+      g.shadowBlur = 40
+      g.drawImage(img, (W - pw) / 2, 1070 - ph, pw, ph)
+      g.shadowBlur = 0
+    }
+    // blat
+    const top = g.createLinearGradient(0, 1070, 0, 1100)
+    top.addColorStop(0, '#a8672f')
+    top.addColorStop(1, '#5e3719')
+    g.fillStyle = '#1a0f09'
+    g.fillRect(0, 1070, W, H - 1070)
+    g.fillStyle = top
+    g.fillRect(0, 1070, W, 32)
+    g.fillStyle = 'rgba(255,217,160,.6)'
+    g.fillRect(0, 1070, W, 4)
+
+    g.textAlign = 'center'
+    g.textBaseline = 'alphabetic'
+    const ls = (px: number) => {
+      ;(g as unknown as { letterSpacing: string }).letterSpacing = `${px}px`
+    }
+    ls(0)
+    g.font = '700 150px Oswald, Impact, sans-serif'
+    g.fillStyle = '#f0e2c5'
+    g.fillText('NA ZDROWIE,', W / 2, 190)
+    g.fillStyle = '#e76b37'
+    g.shadowColor = 'rgba(231,107,55,.45)'
+    g.shadowBlur = 36
+    g.fillText('JOHNNY!', W / 2, 340)
+    g.shadowBlur = 0
+    ls(9)
+    g.font = '600 34px "Barlow Semi Condensed", sans-serif'
+    g.fillStyle = '#d6a45d'
+    g.fillText('ZAKUPY ZROBIONE', W / 2, 396)
+    ls(0)
+
+    g.font = '600 46px "Barlow Semi Condensed", sans-serif'
+    g.fillStyle = '#f0e2c5'
+    const lines = wrap(g, praise, 880)
+    lines.forEach((l, i) => g.fillText(l, W / 2, 1170 + i * 56))
+    ls(4)
+    g.font = '600 30px "Barlow Semi Condensed", sans-serif'
+    g.fillStyle = '#a39a86'
+    g.fillText(
+      `${NAME.toUpperCase()} · ${count} ${produkty(count).toUpperCase()} W KOSZYKU · ${new Date().toLocaleDateString('pl-PL')}`,
+      W / 2,
+      1170 + lines.length * 56 + 44,
+    )
+    return await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'))
+  } catch {
+    return null
+  }
 }

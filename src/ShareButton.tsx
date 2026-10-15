@@ -3,7 +3,7 @@ import { Planet } from './assets/planets'
 import { Ship } from './assets/ships'
 import { pickScene, type Scene } from './assets/scene'
 import { doneMessage, pickPraise } from './praise'
-import { renderCard, shareCompletion, type ShareResult } from './shareCard'
+import { renderCantinaCard, renderCard, shareCompletion, type ShareResult } from './shareCard'
 
 const MESSAGES: Record<ShareResult, string> = {
   shared: 'Gotowe, wiadomość poszła.',
@@ -17,12 +17,14 @@ interface Props {
   praise?: string
   /** Statek i planeta na karcie; domyślnie losowe. */
   scene?: Scene
+  /** Który ekran sukcesu: wpływa na wygląd karty. */
+  variant?: 'hyperspace' | 'cantina'
   /** Po jakim czasie przygotować obrazek w tle (ms), żeby nie dławić animacji. */
   prepareAfter?: number
   className?: string
 }
 
-export default function ShareButton({ count, praise, scene, prepareAfter = 0, className = 'btn' }: Props) {
+export default function ShareButton({ count, praise, scene, variant = 'hyperspace', prepareAfter = 0, className = 'btn' }: Props) {
   const [text] = useState(praise ?? pickPraise)
   const [own] = useState(() => scene ?? pickScene())
   const [staging, setStaging] = useState(false)
@@ -50,11 +52,15 @@ export default function ShareButton({ count, praise, scene, prepareAfter = 0, cl
   useEffect(() => {
     if (!staging) return
     const svgs = box.current?.querySelectorAll('svg')
-    void renderCard({ count, praise: text, planet: svgs?.[0], ship: svgs?.[1] }).then((blob) => {
+    const card =
+      variant === 'cantina'
+        ? renderCantinaCard({ count, praise: text })
+        : renderCard({ count, praise: text, planet: svgs?.[0], ship: svgs?.[1] })
+    void card.then((blob) => {
       resolve.current(blob)
       setStaging(false)
     })
-  }, [staging, count, text])
+  }, [staging, count, text, variant])
 
   const onClick = async () => {
     setBusy(true)
@@ -73,7 +79,7 @@ export default function ShareButton({ count, praise, scene, prepareAfter = 0, cl
       <p className="share-status" role="status">
         {status}
       </p>
-      {staging && (
+      {staging && variant === 'hyperspace' && (
         <div ref={box} aria-hidden style={{ position: 'absolute', left: -9999, top: 0, width: 1, height: 1, overflow: 'hidden' }}>
           <Planet kind={own.planet} />
           <Ship kind={own.ship} />

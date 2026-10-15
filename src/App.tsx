@@ -16,7 +16,10 @@ import {
 } from './storage'
 import AddMealScreen from './AddMealScreen'
 import MealsScreen from './MealsScreen'
+import CantinaComplete from './CantinaComplete'
 import MissionComplete from './MissionComplete'
+import { nextVariant, type SuccessVariant } from './successVariant'
+import { preloadDrinker } from './assets/drinker'
 import ShoppingScreen from './ShoppingScreen'
 import { isMuted, playCheck, setMuted, unlockAudio } from './sound'
 
@@ -49,7 +52,7 @@ export default function App() {
   const [inCart, setInCart] = useState(() => loadInCart(appData))
   const [removed, setRemoved] = useState(() => loadRemoved(appData))
   const [muted, setMutedState] = useState(isMuted)
-  const [celebrating, setCelebrating] = useState(false)
+  const [celebrating, setCelebrating] = useState<SuccessVariant | null>(null)
   // true od chwili ukończenia listy do momentu, gdy znów pojawi się coś do kupienia
   const celebrated = useRef(false)
 
@@ -84,6 +87,7 @@ export default function App() {
 
   const toggleInCart = (id: string) => {
     unlockAudio()
+    preloadDrinker()
     const adding = !inCart.includes(id)
     const next = toggle(inCart, id)
     setInCart(next)
@@ -92,7 +96,7 @@ export default function App() {
     // ukończenie wywołuje sekwencję tylko przez odhaczenie i tylko raz na sesję
     if (adding && !celebrated.current && isComplete(buildShoppingList(selectedMeals, next, appData, removed))) {
       celebrated.current = true
-      setCelebrating(true)
+      setCelebrating(nextVariant())
     }
   }
 
@@ -140,16 +144,29 @@ export default function App() {
         />
       )}
       {celebrating && (
-        <MissionComplete
-          count={done}
-          muted={muted}
-          onToggleMute={toggleMuted}
-          onClose={() => setCelebrating(false)}
-          onReturn={() => {
-            setCelebrating(false)
-            setScreen('meals')
-          }}
-        />
+        celebrating === 'cantina' ? (
+          <CantinaComplete
+            count={done}
+            muted={muted}
+            onToggleMute={toggleMuted}
+            onClose={() => setCelebrating(null)}
+            onReturn={() => {
+              setCelebrating(null)
+              setScreen('meals')
+            }}
+          />
+        ) : (
+          <MissionComplete
+            count={done}
+            muted={muted}
+            onToggleMute={toggleMuted}
+            onClose={() => setCelebrating(null)}
+            onReturn={() => {
+              setCelebrating(null)
+              setScreen('meals')
+            }}
+          />
+        )
       )}
     </div>
   )

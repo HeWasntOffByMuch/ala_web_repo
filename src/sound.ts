@@ -1,3 +1,4 @@
+import cantinaUrl from './assets/cantina.mp3'
 import { loadMuted, saveMuted } from './storage'
 
 /**
@@ -31,7 +32,90 @@ function getCtx(): AudioContext | null {
 }
 
 /** Wywołaj w handlerze kliknięcia, żeby przeglądarka pozwoliła na dźwięk. */
-export const unlockAudio = () => void getCtx()
+export const unlockAudio = () => {
+  if (getCtx()) warmCantina()
+}
+
+/** Bajty pliku; adresy data: (wersja jednoplikowa) dekodujemy ręcznie, bez fetch. */
+async function loadBytes(url: string): Promise<ArrayBuffer> {
+  if (url.startsWith('data:')) {
+    const bin = atob(url.slice(url.indexOf(',') + 1))
+    const bytes = new Uint8Array(bin.length)
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i)
+    return bytes.buffer
+  }
+  return (await fetch(url)).arrayBuffer()
+}
+
+let cantina: Promise<AudioBuffer | null> | null = null
+
+/** Pobiera i dekoduje muzykę kantyny z wyprzedzeniem (raz). */
+function warmCantina(): Promise<AudioBuffer | null> {
+  cantina ??= (async () => {
+    try {
+      const c = getCtx()
+      if (!c) return null
+      const data = await loadBytes(cantinaUrl)
+      // wariant z callbackami działa też w starszym Safari
+      return await new Promise<AudioBuffer>((res, rej) => c.decodeAudioData(data, res, rej))
+    } catch {
+      cantina = null // pozwól spróbować ponownie
+      return null
+    }
+  })()
+  return cantina
+}
+
+/** Muzyka z kantyny do alternatywnego ekranu sukcesu. Zwraca uchwyt do zatrzymania. */
+export function playCantina(): { stop: () => void } {
+  if (muted) return { stop() {} }
+  let stopped = false
+  let src: AudioBufferSourceNode | null = null
+  let gain: GainNode | null = null
+  const handle = {
+    stop() {
+      stopped = true
+      if (active === handle) active = null
+      try {
+        const c = getCtx()
+        if (c && gain) {
+          gain.gain.cancelScheduledValues(c.currentTime)
+          gain.gain.setTargetAtTime(0, c.currentTime, 0.05)
+        }
+        setTimeout(() => {
+          try {
+            src?.stop()
+          } catch {
+            /* już zatrzymane */
+          }
+        }, 300)
+      } catch {
+        /* ignoruj */
+      }
+    },
+  }
+  active?.stop()
+  active = handle
+  void warmCantina().then((buf) => {
+    const c = getCtx()
+    if (stopped || !buf || !c) return
+    try {
+      src = c.createBufferSource()
+      src.buffer = buf
+      gain = c.createGain()
+      const t = c.currentTime
+      gain.gain.setValueAtTime(0.0001, t)
+      gain.gain.exponentialRampToValueAtTime(0.8, t + 0.08)
+      gain.gain.setValueAtTime(0.8, t + Math.max(0.1, buf.duration - 0.5))
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + buf.duration)
+      src.connect(gain).connect(c.destination)
+      src.start()
+    } catch {
+      /* dźwięk jest opcjonalny */
+    }
+  })
+  return handle
+}
 
 let noiseBuffer: AudioBuffer | null = null
 function noise(c: AudioContext) {
