@@ -1,7 +1,9 @@
 import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import Hyperspace from './Hyperspace'
 import { Emblem, SpeakerIcon } from './icons'
-import { Planet, ShipArt } from './MissionScene'
+import { Planet } from './assets/planets'
+import { Ship } from './assets/ships'
+import { pickScene } from './assets/scene'
 import { playMission } from './sound'
 import { pickPraise } from './praise'
 import ShareButton from './ShareButton'
@@ -22,6 +24,7 @@ const prefersReducedMotion = () =>
 
 function Sequence({ count, muted, onToggleMute, onClose, onReturn }: Props) {
   const [praise] = useState(pickPraise)
+  const [scene] = useState(pickScene)
   const reduced = useMemo(prefersReducedMotion, [])
   const root = useRef<HTMLDivElement>(null)
   const skip = useRef<HTMLButtonElement>(null)
@@ -61,7 +64,7 @@ function Sequence({ count, muted, onToggleMute, onClose, onReturn }: Props) {
       <div className="mc-shake">
         <Hyperspace still={reduced} />
         <div className="mc-glow" />
-        <ShipArt className="mc-ship-jump" />
+        <Ship kind={scene.ship} className="mc-ship-jump" />
       </div>
 
       <div className="mc-confirm">
@@ -78,8 +81,8 @@ function Sequence({ count, muted, onToggleMute, onClose, onReturn }: Props) {
       </div>
 
       <div className="mc-scene">
-        <Planet className="mc-planet" />
-        <ShipArt className="mc-ship" />
+        <Planet kind={scene.planet} className="mc-planet" />
+        <Ship kind={scene.ship} className="mc-ship" />
       </div>
       <div className="mc-flash" />
       <div className="mc-vignette" />
@@ -101,7 +104,7 @@ function Sequence({ count, muted, onToggleMute, onClose, onReturn }: Props) {
             </div>
           </div>
           <div className="mc-go mc-share">
-            <ShareButton count={count} praise={praise} prepareAfter={4500} />
+            <ShareButton count={count} praise={praise} scene={scene} prepareAfter={4500} />
           </div>
           <div className="mc-go">
             <button ref={back} type="button" className="btn btn-primary" onClick={onReturn}>

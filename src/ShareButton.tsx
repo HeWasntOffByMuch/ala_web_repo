@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { Planet, ShipArt } from './MissionScene'
+import { Planet } from './assets/planets'
+import { Ship } from './assets/ships'
+import { pickScene, type Scene } from './assets/scene'
 import { doneMessage, pickPraise } from './praise'
 import { renderCard, shareCompletion, type ShareResult } from './shareCard'
 
@@ -13,13 +15,16 @@ const MESSAGES: Record<ShareResult, string> = {
 interface Props {
   count: number
   praise?: string
+  /** Statek i planeta na karcie; domyślnie losowe. */
+  scene?: Scene
   /** Po jakim czasie przygotować obrazek w tle (ms), żeby nie dławić animacji. */
   prepareAfter?: number
   className?: string
 }
 
-export default function ShareButton({ count, praise, prepareAfter = 0, className = 'btn' }: Props) {
+export default function ShareButton({ count, praise, scene, prepareAfter = 0, className = 'btn' }: Props) {
   const [text] = useState(praise ?? pickPraise)
+  const [own] = useState(() => scene ?? pickScene())
   const [staging, setStaging] = useState(false)
   const [busy, setBusy] = useState(false)
   const [status, setStatus] = useState('')
@@ -70,8 +75,8 @@ export default function ShareButton({ count, praise, prepareAfter = 0, className
       </p>
       {staging && (
         <div ref={box} aria-hidden style={{ position: 'absolute', left: -9999, top: 0, width: 1, height: 1, overflow: 'hidden' }}>
-          <Planet />
-          <ShipArt />
+          <Planet kind={own.planet} />
+          <Ship kind={own.ship} />
         </div>
       )}
     </>
