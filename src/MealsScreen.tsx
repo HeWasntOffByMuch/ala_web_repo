@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import type { Meal } from './types'
 import { filterByName } from './text'
-import { CartIcon, CheckIcon, Emblem, MealIcon, ShipSchematic, Skyline, SpeakerIcon } from './icons'
+import { CartIcon, CheckIcon, Emblem, MealIcon, ShipSchematic, Skyline } from './icons'
+import SoundToggle from './SoundToggle'
+import { collapseOnScroll } from './collapseOnScroll'
 
 interface Props {
   meals: Meal[]
@@ -31,16 +33,18 @@ export default function MealsScreen({
       <header className="hdr">
         <div className="hdr-row">
           <Emblem className="emblem" />
-          <div>
+          <div className="title-block">
             <h1 className="title">Posiłki</h1>
             <p className="label">
               Wybrano: {selected.length} / {meals.length}
             </p>
           </div>
           <ShipSchematic className="hdr-art" />
+          <SoundToggle muted={muted} onToggle={onToggleMute} />
         </div>
       </header>
-      <div className="search-row">
+      <main className="main" onScroll={collapseOnScroll}>
+        <div className="search-row">
         <input
           type="search"
           className="field"
@@ -52,8 +56,7 @@ export default function MealsScreen({
         <button type="button" className="btn btn-primary btn-square" aria-label="Dodaj posiłek" onClick={onAdd}>
           +
         </button>
-      </div>
-      <main className="main">
+        </div>
         <ul className="rows meals">
           {visible.length === 0 && <li className="empty">Brak posiłków dla „{query}”.</li>}
           {visible.map((meal) => (
@@ -77,9 +80,6 @@ export default function MealsScreen({
         <Skyline className="horizon" />
       </main>
       <div className="dock">
-        <button type="button" className="btn btn-ghost" aria-pressed={muted} onClick={onToggleMute} aria-label={muted ? 'Włącz dźwięk' : 'Wyłącz dźwięk'}>
-          <SpeakerIcon muted={muted} />
-        </button>
         <button type="button" className="btn" onClick={onClear}>
           Wyczyść wybór
         </button>

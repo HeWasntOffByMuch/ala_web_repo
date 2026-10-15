@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Meal, Product } from './types'
 import { filterByName, normalize } from './text'
 import { CheckIcon, Emblem } from './icons'
+import { collapseOnScroll } from './collapseOnScroll'
 
 interface Props {
   categories: string[]
@@ -46,10 +47,12 @@ export default function AddMealScreen({ categories, products, onSave, onCancel }
       <header className="hdr">
         <div className="hdr-row">
           <Emblem className="emblem" style={{ width: 44, height: 44 }} />
-          <h1 className="title">Nowy posiłek</h1>
+          <div className="title-block">
+            <h1 className="title">Nowy posiłek</h1>
+          </div>
         </div>
       </header>
-      <main className="main">
+      <main className="main" onScroll={collapseOnScroll}>
       <div style={{ display: 'grid', gap: 12, padding: '14px 14px 8px' }}>
         <label className="field-label label">
           Nazwa posiłku

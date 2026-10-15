@@ -30,6 +30,7 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 body {
+  overscroll-behavior: none;
   background-image: radial-gradient(120% 60% at 50% 0%, #161c22 0%, var(--bg) 60%);
   background-attachment: fixed;
 }
@@ -72,7 +73,9 @@ select {
 .shell {
   position: relative;
   display: flex;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   flex-direction: column;
   margin: 0 auto;
   max-width: 480px;
@@ -101,12 +104,27 @@ select {
 
 /* ───────── Nagłówek ───────── */
 .hdr {
-  position: sticky;
-  top: 0;
+  --p: 0; /* postęp przewijania 0..1, ustawiany z JS na scrollerze */
+  position: relative;
   z-index: 20;
-  padding: 10px 14px 10px;
-  background: rgba(9, 12, 16, 0.94);
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 72px;
+  padding: 8px 14px;
+  background: rgba(9, 12, 16, 0.96);
   border-bottom: 1px solid var(--line);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, calc(0.55 * var(--p)));
+}
+.hdr .emblem,
+.hdr .title-block {
+  transform-origin: left center;
+  transform: scale(calc(1 - 0.16 * var(--p)));
+}
+.hdr .hdr-art {
+  opacity: calc(1 - 1.5 * var(--p));
+  transform: translateX(calc(28px * var(--p)));
 }
 .hdr-row {
   display: flex;
@@ -115,8 +133,8 @@ select {
 }
 .emblem {
   flex: none;
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   color: var(--orange);
 }
 .title {
@@ -135,11 +153,44 @@ select {
   color: var(--amber);
 }
 .hdr-art {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 170px;
   margin-left: auto;
-  width: 170px;
-  max-width: 38%;
   color: var(--amber);
-  opacity: 0.8;
+}
+.icon-btn {
+  display: grid;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--amber);
+  cursor: pointer;
+}
+.icon-btn:hover {
+  border-color: var(--line-strong);
+  background: rgba(231, 107, 55, 0.12);
+}
+.icon-btn[aria-pressed='true'] {
+  color: var(--ink-dim);
+}
+@media (max-width: 380px) {
+  .dock .btn {
+    font-size: 15px;
+    letter-spacing: 0;
+  }
+  .dock .btn svg {
+    display: none;
+  }
+}
+@media (max-width: 349px) {
+  .hdr-art {
+    display: none;
+  }
 }
 .hdr-tools {
   margin-left: auto;
@@ -157,9 +208,10 @@ select {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 0 10px;
+  min-width: 0;
+  padding: 0 8px;
   line-height: 1.1;
-  white-space: nowrap;
+  text-align: center;
   border: 1px solid var(--line-strong);
   border-radius: 4px;
   background: rgba(231, 107, 55, 0.06);
@@ -264,7 +316,11 @@ select {
 .main {
   display: flex;
   flex: 1;
+  min-height: 0;
   flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 .rows {
   display: grid;
@@ -407,13 +463,14 @@ select {
 
 /* ───────── Dock z akcjami ───────── */
 .dock {
-  position: sticky;
-  bottom: 0;
   z-index: 20;
-  display: flex;
+  flex: none;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   gap: 10px;
   padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px));
-  background: rgba(9, 12, 16, 0.95);
+  background: rgba(9, 12, 16, 0.96);
   border-top: 1px solid var(--line);
 }
 .horizon {
@@ -534,14 +591,12 @@ select {
     max-width: 640px;
   }
   .dock {
+    display: flex;
     justify-content: flex-end;
     padding-inline: 22px;
   }
   .dock .btn {
     flex: 0 0 240px;
-  }
-  .dock .btn-ghost {
-    flex: none;
   }
   .shopping-grid {
     display: grid;
@@ -551,7 +606,7 @@ select {
   }
   .shopping-grid > aside {
     position: sticky;
-    top: 92px;
+    top: 12px;
     order: 2;
   }
   .sections {

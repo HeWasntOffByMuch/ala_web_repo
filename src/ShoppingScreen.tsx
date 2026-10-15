@@ -1,5 +1,7 @@
 import type { ShoppingSection } from './types'
-import { CheckIcon, Emblem, Skyline, SpeakerIcon } from './icons'
+import { CheckIcon, Emblem, Skyline } from './icons'
+import SoundToggle from './SoundToggle'
+import { collapseOnScroll } from './collapseOnScroll'
 
 interface Props {
   sections: ShoppingSection[]
@@ -49,7 +51,7 @@ export default function ShoppingScreen({
       <header className="hdr">
         <div className="hdr-row">
           <Emblem className="emblem" style={{ width: 44, height: 44 }} />
-          <div>
+          <div className="title-block">
             <h1 className="title" style={{ fontSize: 22, whiteSpace: 'nowrap' }}>
               Lista zaopatrzenia
             </h1>
@@ -62,12 +64,13 @@ export default function ShoppingScreen({
         {bar}
       </header>
 
-      <main className="main">
+      <main className="main" onScroll={collapseOnScroll}>
         <div className="shopping-grid">
           <aside className="panel brackets" aria-label="Status misji">
             <div className="hdr-row">
               <span className="label">Status misji</span>
               <span className={`pct ${complete ? 'done' : ''}`}>{pct}%</span>
+              <SoundToggle muted={muted} onToggle={onToggleMute} />
             </div>
             {bar}
             <div className="readouts">
@@ -136,9 +139,6 @@ export default function ShoppingScreen({
       </main>
 
       <div className="dock">
-        <button type="button" className="btn btn-ghost" aria-pressed={muted} onClick={onToggleMute} aria-label={muted ? 'Włącz dźwięk' : 'Wyłącz dźwięk'}>
-          <SpeakerIcon muted={muted} />
-        </button>
         <button type="button" className="btn" onClick={onClearCart}>
           Wyczyść koszyk
         </button>
