@@ -82,7 +82,7 @@ describe('App: zakończenie misji', () => {
     }
   }
 
-  it('odpala sekwencję raz po odhaczeniu ostatniego produktu, bez zmiany stanu listy', async () => {
+  it('odpala sekwencję raz po odhaczeniu ostatniego produktu, lista zostaje bez przycisków sekwencji', async () => {
     const user = userEvent.setup()
     render(<App />)
     await user.click(screen.getByRole('checkbox', { name: 'Owsianka z sokiem' }))
@@ -98,12 +98,9 @@ describe('App: zakończenie misji', () => {
     await user.click(screen.getByRole('button', { name: /Pomiń/ }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(screen.getAllByRole('checkbox', { checked: true }).length).toBeGreaterThanOrEqual(4)
-
-    // powtórka z przycisku nie rusza koszyka
-    await user.click(screen.getByRole('button', { name: 'Odtwórz sekwencję' }))
-    expect(screen.getByRole('dialog')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: /Pomiń/ }))
     expect(screen.getByRole('checkbox', { name: 'Woda mineralna' })).toBeChecked()
+    expect(screen.queryByRole('button', { name: 'Odtwórz sekwencję' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Wyślij żonie screena' })).not.toBeInTheDocument()
   })
 
   it('nie odpala sekwencji przy starcie, gdy lista jest już kompletna', () => {

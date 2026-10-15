@@ -137,10 +137,6 @@ export default function App() {
           onToggle={toggleInCart}
           onClearCart={() => setInCart([])}
           onBack={() => setScreen('meals')}
-          onReplay={() => {
-            unlockAudio()
-            setCelebrating(true)
-          }}
         />
       )}
       {celebrating && (

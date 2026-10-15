@@ -1,6 +1,5 @@
 import type { ShoppingSection } from './types'
 import { CheckIcon, Emblem, Skyline, SpeakerIcon } from './icons'
-import ShareButton from './ShareButton'
 
 interface Props {
   sections: ShoppingSection[]
@@ -15,7 +14,6 @@ interface Props {
   onToggle: (id: string) => void
   onClearCart: () => void
   onBack: () => void
-  onReplay: () => void
 }
 
 export default function ShoppingScreen({
@@ -31,7 +29,6 @@ export default function ShoppingScreen({
   onToggle,
   onClearCart,
   onBack,
-  onReplay,
 }: Props) {
   const pct = total === 0 ? 0 : Math.round((done / total) * 100)
   const bar = (
@@ -88,16 +85,6 @@ export default function ShoppingScreen({
                 <span key={i} className={`lamp ${complete || i < Math.ceil(pct / 20) ? 'on' : ''} ${!complete && i === Math.ceil(pct / 20) - 1 ? 'blink' : ''}`} />
               ))}
             </div>
-            {complete && (
-              <button type="button" className="btn" style={{ width: '100%', marginTop: 12 }} onClick={onReplay}>
-                Odtwórz sekwencję
-              </button>
-            )}
-            {complete && (
-              <div style={{ marginTop: 8, display: 'grid', gap: 6 }}>
-                <ShareButton count={done} className="btn btn-primary" />
-              </div>
-            )}
           </aside>
 
           <div className="sections">
