@@ -9,14 +9,14 @@ describe('App', () => {
 
     expect(screen.getByRole('button', { name: 'Lista zakupów' })).toBeDisabled()
 
-    // Spaghetti i Makaron z tuńczykiem mają wspólne: makaron, czosnek, cebula
-    await user.click(screen.getByRole('checkbox', { name: 'Spaghetti' }))
-    await user.click(screen.getByRole('checkbox', { name: 'Makaron z tuńczykiem' }))
+    // oba makarony mają wspólne: makaron, pomidory
+    await user.click(screen.getByRole('checkbox', { name: 'Makaron z łososiem' }))
+    await user.click(screen.getByRole('checkbox', { name: 'Makaron z burratą' }))
     expect(screen.getByText(/Wybrano: 2/)).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Lista zakupów' }))
 
     expect(screen.getAllByRole('checkbox', { name: 'Makaron' })).toHaveLength(1)
-    expect(screen.getAllByRole('checkbox', { name: 'Cebula' })).toHaveLength(1)
+    expect(screen.getAllByRole('checkbox', { name: 'Pomidory' })).toHaveLength(1)
 
     await user.click(screen.getByRole('checkbox', { name: 'Makaron' }))
     expect(screen.getByRole('checkbox', { name: 'Makaron' })).toBeChecked()
@@ -26,7 +26,6 @@ describe('App', () => {
 
     const makaron = screen.getByRole('checkbox', { name: 'Makaron' })
     expect(makaron).toBeChecked()
-    // odhaczony na końcu sekcji "Suche" (jedyny w sekcji, więc sprawdzamy sekcję)
     expect(within(makaron.closest('section')!).getByText('Suche')).toBeInTheDocument()
   })
 })
@@ -36,8 +35,8 @@ describe('App: wyszukiwanie i dodawanie posiłków', () => {
     const user = userEvent.setup()
     render(<App />)
     await user.type(screen.getByRole('searchbox', { name: 'Szukaj posiłku' }), 'losos')
-    expect(screen.getByRole('checkbox', { name: 'Łosoś z ziemniakami' })).toBeInTheDocument()
-    expect(screen.queryByRole('checkbox', { name: 'Spaghetti' })).not.toBeInTheDocument()
+    expect(screen.getByRole('checkbox', { name: 'Makaron z łososiem' })).toBeInTheDocument()
+    expect(screen.queryByRole('checkbox', { name: 'Korytko' })).not.toBeInTheDocument()
   })
 
   it('dodaje własny posiłek z nowym produktem i trafia on na listę zakupów', async () => {
@@ -45,16 +44,16 @@ describe('App: wyszukiwanie i dodawanie posiłków', () => {
     render(<App />)
     await user.click(screen.getByRole('button', { name: 'Dodaj posiłek' }))
     await user.type(screen.getByPlaceholderText('np. Zupa pomidorowa'), 'Sałatka grecka')
-    await user.type(screen.getByPlaceholderText('Szukaj produktu lub wpisz nowy'), 'feta')
-    await user.click(screen.getByRole('button', { name: 'Dodaj „feta”' }))
-    await user.type(screen.getByPlaceholderText('Szukaj produktu lub wpisz nowy'), 'ogórek')
-    await user.click(screen.getByRole('checkbox', { name: /Ogórek/ }))
+    await user.type(screen.getByPlaceholderText('Szukaj produktu lub wpisz nowy'), 'oliwki')
+    await user.click(screen.getByRole('button', { name: 'Dodaj „oliwki”' }))
+    await user.type(screen.getByPlaceholderText('Szukaj produktu lub wpisz nowy'), 'ogórki')
+    await user.click(screen.getByRole('checkbox', { name: /Ogórki/ }))
     await user.click(screen.getByRole('button', { name: 'Zapisz posiłek' }))
 
     await user.click(screen.getByRole('checkbox', { name: 'Sałatka grecka' }))
     await user.click(screen.getByRole('button', { name: 'Lista zakupów' }))
-    expect(screen.getByRole('checkbox', { name: 'feta' })).toBeInTheDocument()
-    expect(screen.getByRole('checkbox', { name: 'Ogórek' })).toBeInTheDocument()
+    expect(screen.getByRole('checkbox', { name: 'oliwki' })).toBeInTheDocument()
+    expect(screen.getByRole('checkbox', { name: 'Ogórki' })).toBeInTheDocument()
   })
 })
 
@@ -62,7 +61,7 @@ describe('App: usuwanie produktów z listy', () => {
   it('usuwa produkt z listy i pozwala go przywrócić', async () => {
     const user = userEvent.setup()
     render(<App />)
-    await user.click(screen.getByRole('checkbox', { name: 'Spaghetti' }))
+    await user.click(screen.getByRole('checkbox', { name: 'Makaron z łososiem' }))
     await user.click(screen.getByRole('button', { name: 'Lista zakupów' }))
 
     await user.click(screen.getByRole('button', { name: 'Usuń Makaron' }))
@@ -75,9 +74,9 @@ describe('App: usuwanie produktów z listy', () => {
 
 describe('App: zakończenie misji', () => {
   const finish = async (user: ReturnType<typeof userEvent.setup>) => {
-    await user.click(screen.getByRole('checkbox', { name: 'Owsianka z sokiem' }))
+    await user.click(screen.getByRole('checkbox', { name: 'Tygodniowy mix owoców' }))
     await user.click(screen.getByRole('button', { name: 'Lista zakupów' }))
-    for (const name of ['Mleko', 'Płatki owsiane', 'Sok pomarańczowy', 'Woda mineralna']) {
+    for (const name of ['Banany', 'Jabłka']) {
       await user.click(screen.getByRole('checkbox', { name }))
     }
   }
@@ -85,27 +84,27 @@ describe('App: zakończenie misji', () => {
   it('odpala sekwencję raz po odhaczeniu ostatniego produktu, lista zostaje bez przycisków sekwencji', async () => {
     const user = userEvent.setup()
     render(<App />)
-    await user.click(screen.getByRole('checkbox', { name: 'Owsianka z sokiem' }))
+    await user.click(screen.getByRole('checkbox', { name: 'Tygodniowy mix owoców' }))
     await user.click(screen.getByRole('button', { name: 'Lista zakupów' }))
-    for (const name of ['Mleko', 'Płatki owsiane', 'Sok pomarańczowy']) {
+    for (const name of ['Banany']) {
       await user.click(screen.getByRole('checkbox', { name }))
     }
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('checkbox', { name: 'Woda mineralna' }))
+    await user.click(screen.getByRole('checkbox', { name: 'Jabłka' }))
     expect(screen.getByRole('dialog', { name: 'Misja wykonana' })).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: /Pomiń/ }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(screen.getAllByRole('checkbox', { checked: true }).length).toBeGreaterThanOrEqual(4)
-    expect(screen.getByRole('checkbox', { name: 'Woda mineralna' })).toBeChecked()
+    expect(screen.getAllByRole('checkbox', { checked: true }).length).toBeGreaterThanOrEqual(2)
+    expect(screen.getByRole('checkbox', { name: 'Jabłka' })).toBeChecked()
     expect(screen.queryByRole('button', { name: 'Odtwórz sekwencję' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Wyślij żonie screena' })).not.toBeInTheDocument()
   })
 
   it('nie odpala sekwencji przy starcie, gdy lista jest już kompletna', () => {
-    localStorage.setItem('zakupy.selectedMeals', '["owsianka"]')
-    localStorage.setItem('zakupy.inCart', '["mleko","platki-owsiane","sok-pomaranczowy","woda"]')
+    localStorage.setItem('zakupy.selectedMeals', '["tygodniowy-mix-owocow"]')
+    localStorage.setItem('zakupy.inCart', '["banany","jablka"]')
     render(<App />)
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
@@ -124,9 +123,9 @@ describe('App: pochwała i wysyłka do żony', () => {
   it('pokazuje pochwałę z imieniem i pozwala wysłać wiadomość', async () => {
     const user = userEvent.setup()
     render(<App />)
-    await user.click(screen.getByRole('checkbox', { name: 'Owsianka z sokiem' }))
+    await user.click(screen.getByRole('checkbox', { name: 'Tygodniowy mix owoców' }))
     await user.click(screen.getByRole('button', { name: 'Lista zakupów' }))
-    for (const name of ['Mleko', 'Płatki owsiane', 'Sok pomarańczowy', 'Woda mineralna']) {
+    for (const name of ['Banany', 'Jabłka']) {
       await user.click(screen.getByRole('checkbox', { name }))
     }
     const dialog = screen.getByRole('dialog')
@@ -143,9 +142,9 @@ describe('App: alternatywny ekran sukcesu (kantyna)', () => {
     localStorage.setItem('zakupy.lastSuccess', 'hyperspace')
     const user = userEvent.setup()
     render(<App />)
-    await user.click(screen.getByRole('checkbox', { name: 'Owsianka z sokiem' }))
+    await user.click(screen.getByRole('checkbox', { name: 'Tygodniowy mix owoców' }))
     await user.click(screen.getByRole('button', { name: 'Lista zakupów' }))
-    for (const name of ['Mleko', 'Płatki owsiane', 'Sok pomarańczowy', 'Woda mineralna']) {
+    for (const name of ['Banany', 'Jabłka']) {
       await user.click(screen.getByRole('checkbox', { name }))
     }
     const dialog = screen.getByRole('dialog', { name: 'Na zdrowie, Johnny' })

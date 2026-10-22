@@ -97,21 +97,21 @@ export const SpeakerIcon = ({ muted, ...p }: P & { muted: boolean }) => (
 const bowl = 'M4 16h24c0 6-5 10-12 10S4 22 4 16z'
 
 const mealIcons: Record<string, ReactNode> = {
-  spaghetti: (
+  noodles: (
     <>
       <path d={bowl} />
       <path d="M8 16c0-4 3-6 5-4s3 2 5 0 5-1 5 4" />
       <path d="M23 4v7M21 4v4M25 4v4" />
     </>
   ),
-  'kurczak-curry': (
+  rice: (
     <>
       <path d={bowl} />
       <path d="M7 16c1-5 5-8 9-8s8 3 9 8" />
       <path d="M12 12h.01M16 10h.01M20 12h.01M14 14h.01M18 14h.01" />
     </>
   ),
-  'losos-ziemniaki': (
+  fish: (
     <>
       <path d="M3 16c5-7 13-7 18 0-5 7-13 7-18 0z" />
       <path d="M21 16l8-6v12z" />
@@ -126,13 +126,13 @@ const mealIcons: Record<string, ReactNode> = {
       <circle cx="16" cy="20" r="1.5" />
     </>
   ),
-  tortille: (
+  wrap: (
     <>
       <path d="M5 21L21 5l6 6L11 27z" />
       <path d="M21 5c3 0 6 3 6 6M9 18l5 5" />
     </>
   ),
-  jajecznica: (
+  pan: (
     <>
       <ellipse cx="14" cy="18" rx="10" ry="6" />
       <circle cx="11" cy="17" r="2.4" />
@@ -140,13 +140,13 @@ const mealIcons: Record<string, ReactNode> = {
       <path d="M24 16l6-4" />
     </>
   ),
-  'makaron-tunczyk': (
+  can: (
     <>
       <ellipse cx="16" cy="10" rx="10" ry="4" />
       <path d="M6 10v12c0 2.2 4.5 4 10 4s10-1.8 10-4V10M6 16c0 2.2 4.5 4 10 4s10-1.8 10-4" />
     </>
   ),
-  kotlety: (
+  meatballs: (
     <>
       <ellipse cx="16" cy="23" rx="13" ry="5" />
       <circle cx="11" cy="16" r="4" />
@@ -160,14 +160,14 @@ const mealIcons: Record<string, ReactNode> = {
       <path d="M20 7l2-4" />
     </>
   ),
-  owsianka: (
+  soup: (
     <>
       <path d={bowl} />
       <path d="M10 10c-2-2 2-3 0-6M16 10c-2-2 2-3 0-6" />
       <path d="M25 6l-5 9" />
     </>
   ),
-  'frytki-brokuly': (
+  fries: (
     <>
       <path d="M5 15h13l-2 13H7z" />
       <path d="M8 15V6M11 15V4M14 15V6M17 15V8" />
@@ -177,6 +177,66 @@ const mealIcons: Record<string, ReactNode> = {
       <path d="M24 17v8" />
     </>
   ),
+  drumstick: (
+    <>
+      <path d="M20 6c4 0 7 3 6 7s-5 7-9 8l-4 2-3-3 2-4c1-4 4-10 8-10z" />
+      <path d="M9 22l-4 4M5 26l-2-1M5 26l1 3" />
+    </>
+  ),
+  salad: (
+    <>
+      <path d={bowl} />
+      <path d="M8 15c0-4 3-7 8-7s8 3 8 7" />
+      <path d="M12 12c1-3 3-4 4-4s3 1 4 4" />
+    </>
+  ),
+  pancakes: (
+    <>
+      <ellipse cx="16" cy="22" rx="11" ry="4" />
+      <ellipse cx="16" cy="16.5" rx="11" ry="4" />
+      <ellipse cx="16" cy="11" rx="11" ry="4" />
+      <path d="M12 11v5M20 11v4" />
+    </>
+  ),
+  bread: (
+    <>
+      <path d="M8 26V14C5 13 4 9 7 7c2-2 5-1 9-1s7-1 9 1c3 2 2 6-1 7v12z" />
+      <path d="M12 18v4M16 18v4M20 18v4" />
+    </>
+  ),
+  fruit: (
+    <>
+      <path d="M16 9c-6-3-11 2-9 9 1 5 5 9 9 7 4 2 8-2 9-7 2-7-3-12-9-9z" />
+      <path d="M16 9c0-3 1-5 3-6" />
+    </>
+  ),
+  veg: (
+    <>
+      <path d="M22 6c3 0 4 3 2 5L10 26c-2 2-4 0-3-3l9-15c1-2 4-3 6-2z" />
+      <path d="M22 6l3-3M22 6l1-4M22 6l4 1" />
+    </>
+  ),
+}
+
+/** Który rysunek pasuje do którego posiłku; reszta (też własne) dostaje talerz. */
+const ICON_FOR: Record<string, string> = {
+  'zolty-ryz': 'rice',
+  'makaron-z-lososiem': 'fish',
+  'makaron-z-burrata': 'noodles',
+  'makaron-z-bobem-i-chorizo': 'noodles',
+  'kurczak-pieczony': 'drumstick',
+  'nozki-z-kurczaka': 'drumstick',
+  'zapiekanka-ziemniaczana': 'meatballs',
+  korytko: 'pan',
+  'sniadaniowy-mix': 'bread',
+  'salatka-ze-slonecznikiem': 'salad',
+  'kurczak-z-orzechami-nerkowca': 'wrap',
+  leniwe: 'soup',
+  'omlet-z-jagodami': 'pan',
+  'racuchy-z-jablkami': 'pancakes',
+  nalesniki: 'pancakes',
+  'tygodniowy-mix-warzyw': 'veg',
+  'tygodniowy-mix-owocow': 'fruit',
 }
 
 const fallback = (
@@ -189,7 +249,7 @@ const fallback = (
 export function MealIcon({ id, ...p }: P & { id: string }) {
   return (
     <svg viewBox="0 0 32 32" aria-hidden {...p}>
-      <g {...line}>{mealIcons[id] ?? fallback}</g>
+      <g {...line}>{mealIcons[ICON_FOR[id]] ?? mealIcons[id] ?? fallback}</g>
     </svg>
   )
 }

@@ -26,7 +26,7 @@ export function buildShoppingList(
       .map((id) => productsById.get(id)!)
       .filter((p) => p.category === category)
       .map((p) => ({ id: p.id, name: p.name, inCart: inCart.has(p.id) }))
-      .sort((a, b) => Number(a.inCart) - Number(b.inCart) || collator.compare(a.name, b.name))
+      .sort((a, b) => collator.compare(a.name, b.name))
     if (items.length > 0) sections.push({ category, items })
   }
   return sections

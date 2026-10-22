@@ -30,10 +30,10 @@ describe('buildShoppingList', () => {
     expect(sections.map((s) => s.category)).toEqual(['Warzywa', 'Nabiał', 'Suche'])
   })
 
-  it('alfabetycznie w sekcji, odhaczone na końcu', () => {
+  it('alfabetycznie w sekcji, odhaczone zostają na swoim miejscu', () => {
     const [warzywa] = buildShoppingList(['a', 'b', 'c'], ['cebula'], data)
-    expect(warzywa.items.map((i) => i.name)).toEqual(['Czosnek', 'Ogórek', 'Pomidory', 'Cebula'])
-    expect(warzywa.items.map((i) => i.inCart)).toEqual([false, false, false, true])
+    expect(warzywa.items.map((i) => i.name)).toEqual(['Cebula', 'Czosnek', 'Ogórek', 'Pomidory'])
+    expect(warzywa.items.map((i) => i.inCart)).toEqual([true, false, false, false])
   })
 
   it('ignoruje nieznane id posiłków', () => {
